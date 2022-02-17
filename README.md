@@ -1,2 +1,4 @@
 # sbor
-Serializator for Binary Object Representation, MessagePack/CBOR
+Serializer for Binary Object Representation
+
+MessagePack
