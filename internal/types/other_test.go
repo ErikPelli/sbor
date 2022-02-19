@@ -20,17 +20,17 @@ func TestNil_WriteTo(t *testing.T) {
 
 func TestBoolean_WriteTo(t *testing.T) {
 	data := []struct {
-		input  bool
+		input  Boolean
 		output []byte
 	}{
-		{false, []byte{False}},
-		{true, []byte{True}},
+		{Boolean(false), []byte{False}},
+		{Boolean(true), []byte{True}},
 	}
 
 	for _, test := range data {
 		var buffer bytes.Buffer
 
-		_, _ = Boolean(test.input).WriteTo(&buffer)
+		_, _ = test.input.WriteTo(&buffer)
 		result := buffer.Bytes()
 
 		if !bytes.Equal(result, test.output) {

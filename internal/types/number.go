@@ -95,11 +95,11 @@ func (f Float) WriteTo(w io.Writer) (int64, error) {
 	if f.SinglePrecision {
 		bytes = make([]byte, 5)
 		bytes[0] = Float32
-		binary.BigEndian.PutUint32(bytes[1:], uint32(float32(f.F)))
+		binary.BigEndian.PutUint32(bytes[1:], math.Float32bits(float32(f.F)))
 	} else {
 		bytes = make([]byte, 9)
 		bytes[0] = Float64
-		binary.BigEndian.PutUint64(bytes[1:], uint64(f.F))
+		binary.BigEndian.PutUint64(bytes[1:], math.Float64bits(f.F))
 	}
 
 	writtenBytes, err := w.Write(bytes)
