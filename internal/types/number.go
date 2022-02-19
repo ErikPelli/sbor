@@ -2,7 +2,7 @@ package encode
 
 import (
 	"encoding/binary"
-	types "github.com/ErikPelli/sbor/internal"
+	"github.com/ErikPelli/sbor/internal/types"
 	"io"
 	"math"
 )
@@ -16,12 +16,12 @@ func encodeInteger(i int64, w io.Writer) (int, error) {
 	switch {
 	case i >= -Max5Bit && i < 0:
 		// negative fix int
-		writtenBytes, err := w.Write([]byte{types.NegativeFixInt & byte(-i)})
+		writtenBytes, err := w.Write([]byte{types.NegativeFixInt | byte(-i)})
 		return writtenBytes, err
 
 	case i >= 0 && i <= Max7Bit:
 		// positive fix int
-		writtenBytes, err := w.Write([]byte{types.FixInt & byte(i)})
+		writtenBytes, err := w.Write([]byte{types.FixInt | byte(i)})
 		return writtenBytes, err
 
 	case i >= math.MinInt8 && i <= math.MaxInt8:
