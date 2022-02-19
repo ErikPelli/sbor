@@ -1,60 +1,112 @@
-package encode
+package types
 
 import (
 	"encoding/binary"
-	"github.com/ErikPelli/sbor/internal/types"
 	"io"
 	"math"
 )
 
-const (
-	Max7Bit = 127
-	Max5Bit = 31
-)
+// WriteTo writes an integer value to the Writer.
+// It returns the number of the written bytes
+// and an optional error.
+func (i Int) WriteTo(w io.Writer) (int64, error) {
+	var bytes []byte
 
-func encodeInteger(i int64, w io.Writer) (int, error) {
 	switch {
-	case i >= -Max5Bit && i < 0:
+	case i < 0 && i >= -Max5Bit:
 		// negative fix int
-		writtenBytes, err := w.Write([]byte{types.NegativeFixInt | byte(-i)})
-		return writtenBytes, err
-
+		bytes = []byte{
+			NegativeFixInt | byte(-i),
+		}
 	case i >= 0 && i <= Max7Bit:
 		// positive fix int
-		writtenBytes, err := w.Write([]byte{types.FixInt | byte(i)})
-		return writtenBytes, err
-
+		bytes = []byte{
+			FixInt | byte(i),
+		}
 	case i >= math.MinInt8 && i <= math.MaxInt8:
-		// int 8
-		writtenBytes, err := w.Write([]byte{types.Uint8, byte(i)})
-		return writtenBytes, err
-
+		// int8
+		bytes = []byte{
+			Int8,
+			byte(i),
+		}
 	case i >= math.MinInt16 && i <= math.MaxInt16:
-		// int 16
-		bigInt := make([]byte, 3)
-		bigInt[0] = types.Int16
-		binary.BigEndian.PutUint16(bigInt[1:], uint16(i))
-		writtenBytes, err := w.Write(bigInt)
-		return writtenBytes, err
+		// int16
+		bytes = make([]byte, 3)
+		bytes[0] = Int16
+		binary.BigEndian.PutUint16(bytes[1:], uint16(i))
 
 	case i >= math.MinInt32 && i <= math.MaxInt32:
-		// int 32
-		bigInt := make([]byte, 5)
-		bigInt[0] = types.Int32
-		binary.BigEndian.PutUint32(bigInt[1:], uint32(i))
-		writtenBytes, err := w.Write(bigInt)
-		return writtenBytes, err
+		// int32
+		bytes = make([]byte, 5)
+		bytes[0] = Int32
+		binary.BigEndian.PutUint32(bytes[1:], uint32(i))
 
 	default:
-		// int 64
-		bigInt := make([]byte, 9)
-		bigInt[0] = types.Int64
-		binary.BigEndian.PutUint64(bigInt[1:], uint64(i))
-		writtenBytes, err := w.Write(bigInt)
-		return writtenBytes, err
+		// int64
+		bytes = make([]byte, 9)
+		bytes[0] = Int64
+		binary.BigEndian.PutUint64(bytes[1:], uint64(i))
 	}
+
+	writtenBytes, err := w.Write(bytes)
+	return int64(writtenBytes), err
 }
 
-func encodeUnsignedInteger(i uint64, w io.Writer) int {
+// WriteTo writes an unsigned integer value to the Writer.
+// It returns the number of the written bytes
+// and an optional error.
+func (i Uint) WriteTo(w io.Writer) (int64, error) {
+	var bytes []byte
 
+	switch {
+	case i <= Max7Bit:
+		// positive fix int
+		bytes = []byte{
+			FixInt | byte(i),
+		}
+	case i <= math.MaxUint8:
+		// uint8
+		bytes = []byte{
+			Uint8,
+			byte(i),
+		}
+	case i <= math.MaxUint16:
+		// uint16
+		bytes = make([]byte, 3)
+		bytes[0] = Uint16
+		binary.BigEndian.PutUint16(bytes[1:], uint16(i))
+	case i <= math.MaxUint32:
+		// uint32
+		bytes = make([]byte, 5)
+		bytes[0] = Uint32
+		binary.BigEndian.PutUint32(bytes[1:], uint32(i))
+	default:
+		// uint64
+		bytes = make([]byte, 9)
+		bytes[0] = Uint64
+		binary.BigEndian.PutUint64(bytes[1:], uint64(i))
+	}
+
+	writtenBytes, err := w.Write(bytes)
+	return int64(writtenBytes), err
+}
+
+// WriteTo writes a floating point value to the Writer.
+// It returns the number of the written bytes
+// and an optional error.
+func (f Float) WriteTo(w io.Writer) (int64, error) {
+	var bytes []byte
+
+	if f.SinglePrecision {
+		bytes = make([]byte, 5)
+		bytes[0] = Float32
+		binary.BigEndian.PutUint32(bytes[1:], uint32(float32(f.F)))
+	} else {
+		bytes = make([]byte, 9)
+		bytes[0] = Float64
+		binary.BigEndian.PutUint64(bytes[1:], uint64(f.F))
+	}
+
+	writtenBytes, err := w.Write(bytes)
+	return int64(writtenBytes), err
 }

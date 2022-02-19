@@ -1,4 +1,4 @@
-package internal
+package types
 
 // MessagePack types
 const (
@@ -8,9 +8,9 @@ const (
 	FixArray       = 0x90
 	FixStr         = 0xA0
 
-	Nil   = 0xC0
-	False = 0xC2
-	True  = 0xC3
+	NilCode = 0xC0
+	False   = 0xC2
+	True    = 0xC3
 
 	Bin8  = 0xC4
 	Bin16 = 0xC5
@@ -33,11 +33,11 @@ const (
 	Int32 = 0xD2
 	Int64 = 0xD3
 
-	Fixext1  = 0xD4
-	Fixext2  = 0xD5
-	Fixext4  = 0xD6
-	Fixext8  = 0xD7
-	Fixext16 = 0xD8
+	FixExt1  = 0xD4
+	FixExt2  = 0xD5
+	FixExt4  = 0xD6
+	FixExt8  = 0xD7
+	FixExt16 = 0xD8
 
 	Str8  = 0xD9
 	Str16 = 0xDA
@@ -48,9 +48,26 @@ const (
 
 	Map16 = 0xDE
 	Map32 = 0xDF
+
+	Timestamp = -1
 )
 
-// Messagepack external types
+// General constants
 const (
-	TimeStamp = -1
+	Max7Bit = 0b01111111
+	Max5Bit = 0b00011111
+)
+
+// Go types
+type (
+	Boolean bool
+	Nil     struct{}
+	Int     int64
+	Uint    uint64
+	Float   struct {
+		F               float64
+		SinglePrecision bool
+	}
+	String string
+	Binary []byte
 )
