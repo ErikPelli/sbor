@@ -13,15 +13,10 @@ func (i Int) WriteTo(w io.Writer) (int64, error) {
 	var bytes []byte
 
 	switch {
-	case i < 0 && i >= -Max5Bit:
-		// negative fix int
+	case i >= NegativeFixIntMin && i <= PositiveFixIntMax:
+		// negative and positive fix int
 		bytes = []byte{
-			NegativeFixInt | byte(-i),
-		}
-	case i >= 0 && i <= Max7Bit:
-		// positive fix int
-		bytes = []byte{
-			FixInt | byte(i),
+			byte(i),
 		}
 	case i >= math.MinInt8 && i <= math.MaxInt8:
 		// int8
@@ -59,10 +54,10 @@ func (i Uint) WriteTo(w io.Writer) (int64, error) {
 	var bytes []byte
 
 	switch {
-	case i <= Max7Bit:
+	case i <= PositiveFixIntMax:
 		// positive fix int
 		bytes = []byte{
-			FixInt | byte(i),
+			byte(i),
 		}
 	case i <= math.MaxUint8:
 		// uint8

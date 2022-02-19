@@ -2,11 +2,10 @@ package types
 
 // MessagePack types
 const (
-	FixInt         = 0x00
-	NegativeFixInt = 0xE0
-	FixMap         = 0x80
-	FixArray       = 0x90
-	FixStr         = 0xA0
+	FixInt   = 0x00
+	FixMap   = 0x80
+	FixArray = 0x90
+	FixStr   = 0xA0
 
 	NilCode = 0xC0
 	False   = 0xC2
@@ -54,8 +53,9 @@ const (
 
 // General constants
 const (
-	Max7Bit = 0b01111111
-	Max5Bit = 0b00011111
+	NegativeFixIntMin = -32
+	PositiveFixIntMax = 0b01111111
+	Max5Bit           = 0b00011111
 )
 
 // Go types
