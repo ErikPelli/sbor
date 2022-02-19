@@ -54,7 +54,6 @@ const (
 // General constants
 const (
 	NegativeFixIntMin = -32
-	PositiveFixIntMax = 0b01111111
 	Max5Bit           = 0b00011111
 )
 
