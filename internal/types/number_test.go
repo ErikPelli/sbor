@@ -5,6 +5,55 @@ import (
 	"testing"
 )
 
+func TestInt_WriteTo(t *testing.T) {
+	data := []struct {
+		input  Int
+		output []byte
+	}{
+		{Int(-4), []byte{0xFC}},
+		{Int(120), []byte{0x78}},
+		{Int(-120), []byte{Int8, 0x88}},
+		{Int(-28000), []byte{Int16, 0x92, 0xA0}},
+		{Int(1 << 24), []byte{Int32, 0x01, 0x00, 0x00, 0x00}},
+		{Int(-1 << 46), []byte{Int64, 0xFF, 0xFF, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00}},
+	}
+
+	for _, test := range data {
+		var buffer bytes.Buffer
+
+		_, _ = test.input.WriteTo(&buffer)
+		result := buffer.Bytes()
+
+		if !bytes.Equal(result, test.output) {
+			t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.output)
+		}
+	}
+}
+
+func TestUint_WriteTo(t *testing.T) {
+	data := []struct {
+		input  Uint
+		output []byte
+	}{
+		{Uint(120), []byte{0x78}},
+		{Uint(199), []byte{Uint8, 0xC7}},
+		{Uint(29000), []byte{Uint16, 0x71, 0x48}},
+		{Uint(1 << 24), []byte{Uint32, 0x01, 0x00, 0x00, 0x00}},
+		{Uint(1 << 46), []byte{Uint64, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00}},
+	}
+
+	for _, test := range data {
+		var buffer bytes.Buffer
+
+		_, _ = test.input.WriteTo(&buffer)
+		result := buffer.Bytes()
+
+		if !bytes.Equal(result, test.output) {
+			t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.output)
+		}
+	}
+}
+
 func TestFloat_WriteTo(t *testing.T) {
 	data := []struct {
 		input  Float

@@ -29,13 +29,11 @@ func (i Int) WriteTo(w io.Writer) (int64, error) {
 		bytes = make([]byte, 3)
 		bytes[0] = Int16
 		binary.BigEndian.PutUint16(bytes[1:], uint16(i))
-
 	case i >= math.MinInt32 && i <= math.MaxInt32:
 		// int32
 		bytes = make([]byte, 5)
 		bytes[0] = Int32
 		binary.BigEndian.PutUint32(bytes[1:], uint32(i))
-
 	default:
 		// int64
 		bytes = make([]byte, 9)
