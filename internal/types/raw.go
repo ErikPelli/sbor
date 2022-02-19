@@ -15,18 +15,18 @@ func (s String) WriteTo(w io.Writer) (int64, error) {
 
 	switch {
 	case length <= Max5Bit:
-		bytes = make([]byte, 0, length+1)
+		bytes = make([]byte, 1, length+1)
 		bytes[0] = FixStr | byte(length)
 	case length <= math.MaxUint8:
-		bytes = make([]byte, 0, length+2)
+		bytes = make([]byte, 2, length+2)
 		bytes[0] = Str8
 		bytes[1] = byte(length)
 	case length <= math.MaxUint16:
-		bytes = make([]byte, 0, length+3)
+		bytes = make([]byte, 3, length+3)
 		bytes[0] = Str16
 		binary.BigEndian.PutUint16(bytes[1:], uint16(length))
 	case length <= math.MaxUint32:
-		bytes = make([]byte, 0, length+5)
+		bytes = make([]byte, 5, length+5)
 		bytes[0] = Str32
 		binary.BigEndian.PutUint32(bytes[1:], uint32(length))
 	}
@@ -46,15 +46,15 @@ func (b Binary) WriteTo(w io.Writer) (int64, error) {
 
 	switch {
 	case length <= math.MaxUint8:
-		bytes = make([]byte, 0, length+2)
+		bytes = make([]byte, 2, length+2)
 		bytes[0] = Bin8
 		bytes[1] = byte(length)
 	case length <= math.MaxUint16:
-		bytes = make([]byte, 0, length+3)
+		bytes = make([]byte, 3, length+3)
 		bytes[0] = Bin16
 		binary.BigEndian.PutUint16(bytes[1:], uint16(length))
 	case length <= math.MaxUint32:
-		bytes = make([]byte, 0, length+5)
+		bytes = make([]byte, 5, length+5)
 		bytes[0] = Bin32
 		binary.BigEndian.PutUint32(bytes[1:], uint32(length))
 	}
