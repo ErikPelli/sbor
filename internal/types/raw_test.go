@@ -1,7 +1,6 @@
 package types
 
 import (
-	"bytes"
 	"math/rand"
 	"strings"
 	"testing"
@@ -11,14 +10,11 @@ func TestString_WriteTo_FixStr(t *testing.T) {
 	input := String("hello world")
 	expected := []byte{0xAB, 0x68, 0x65, 0x6C, 0x6C, 0x6F,
 		0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64}
-	var buffer bytes.Buffer
 
-	_, _ = input.WriteTo(&buffer)
-	result := buffer.Bytes()
-
-	if !bytes.Equal(result, expected) {
-		t.Errorf("Invalid result. Function returned %v. Expected %v.", result, expected)
+	data := []writeTestData{
+		{input, expected},
 	}
+	testTypeWriteTo(t, data)
 }
 
 func TestString_WriteTo_Str8(t *testing.T) {
@@ -29,14 +25,11 @@ func TestString_WriteTo_Str8(t *testing.T) {
 	for i := 2; i < len(expected); i++ {
 		expected[i] = 0x23
 	}
-	var buffer bytes.Buffer
 
-	_, _ = input.WriteTo(&buffer)
-	result := buffer.Bytes()
-
-	if !bytes.Equal(result, expected) {
-		t.Errorf("Invalid result. Function returned %v. Expected %v.", result, expected)
+	data := []writeTestData{
+		{input, expected},
 	}
+	testTypeWriteTo(t, data)
 }
 
 func TestString_WriteTo_Str16(t *testing.T) {
@@ -48,14 +41,11 @@ func TestString_WriteTo_Str16(t *testing.T) {
 	for i := 3; i < len(expected); i++ {
 		expected[i] = 0x2D
 	}
-	var buffer bytes.Buffer
 
-	_, _ = input.WriteTo(&buffer)
-	result := buffer.Bytes()
-
-	if !bytes.Equal(result, expected) {
-		t.Errorf("Invalid result. Function returned %v. Expected %v.", result, expected)
+	data := []writeTestData{
+		{input, expected},
 	}
+	testTypeWriteTo(t, data)
 }
 
 func TestString_WriteTo_Str32(t *testing.T) {
@@ -69,14 +59,11 @@ func TestString_WriteTo_Str32(t *testing.T) {
 	for i := 5; i < len(expected); i++ {
 		expected[i] = 0x39
 	}
-	var buffer bytes.Buffer
 
-	_, _ = input.WriteTo(&buffer)
-	result := buffer.Bytes()
-
-	if !bytes.Equal(result, expected) {
-		t.Errorf("Invalid result. Function returned %v. Expected %v.", result, expected)
+	data := []writeTestData{
+		{input, expected},
 	}
+	testTypeWriteTo(t, data)
 }
 
 func TestBinary_WriteTo_Bin8(t *testing.T) {
@@ -86,14 +73,11 @@ func TestBinary_WriteTo_Bin8(t *testing.T) {
 	expected[0] = Bin8
 	expected[1] = byte(len(input))
 	expected = append(expected, input...)
-	var buffer bytes.Buffer
 
-	_, _ = input.WriteTo(&buffer)
-	result := buffer.Bytes()
-
-	if !bytes.Equal(result, expected) {
-		t.Errorf("Invalid result. Function returned %v. Expected %v.", result, expected)
+	data := []writeTestData{
+		{input, expected},
 	}
+	testTypeWriteTo(t, data)
 }
 
 func TestBinary_WriteTo_Bin16(t *testing.T) {
@@ -104,14 +88,11 @@ func TestBinary_WriteTo_Bin16(t *testing.T) {
 	expected[1] = 0x03 // Length
 	expected[2] = 0xE8 // 1000 (Big Endian)
 	expected = append(expected, input...)
-	var buffer bytes.Buffer
 
-	_, _ = input.WriteTo(&buffer)
-	result := buffer.Bytes()
-
-	if !bytes.Equal(result, expected) {
-		t.Errorf("Invalid result. Function returned %v. Expected %v.", result, expected)
+	data := []writeTestData{
+		{input, expected},
 	}
+	testTypeWriteTo(t, data)
 }
 
 func TestBinary_WriteTo_Bin32(t *testing.T) {
@@ -124,12 +105,9 @@ func TestBinary_WriteTo_Bin32(t *testing.T) {
 	expected[3] = 0x38
 	expected[4] = 0x80
 	expected = append(expected, input...)
-	var buffer bytes.Buffer
 
-	_, _ = input.WriteTo(&buffer)
-	result := buffer.Bytes()
-
-	if !bytes.Equal(result, expected) {
-		t.Errorf("Invalid result. Function returned %v. Expected %v.", result, expected)
+	data := []writeTestData{
+		{input, expected},
 	}
+	testTypeWriteTo(t, data)
 }

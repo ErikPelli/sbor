@@ -1,5 +1,10 @@
 package types
 
+import (
+	"io"
+	"reflect"
+)
+
 // MessagePack types
 const (
 	FixInt   = 0x00
@@ -69,4 +74,12 @@ type (
 	}
 	String string
 	Binary []byte
+	Array  []MessagePackType
+	Map    map[MessagePackType]MessagePackType
+	Struct reflect.Value
 )
+
+type MessagePackType interface {
+	// Len() int
+	io.WriterTo
+}

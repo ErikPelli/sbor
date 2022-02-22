@@ -1,40 +1,20 @@
 package types
 
 import (
-	"bytes"
 	"testing"
 )
 
 func TestNil_WriteTo(t *testing.T) {
-	input := Nil{}
-	expected := []byte{NilCode}
-	var buffer bytes.Buffer
-
-	_, _ = input.WriteTo(&buffer)
-	result := buffer.Bytes()
-
-	if !bytes.Equal(result, expected) {
-		t.Errorf("Invalid result. Function returned %v. Expected %v.", result, expected)
+	data := []writeTestData{
+		{Nil{}, []byte{0xC0}},
 	}
+	testTypeWriteTo(t, data)
 }
 
 func TestBoolean_WriteTo(t *testing.T) {
-	data := []struct {
-		input  Boolean
-		output []byte
-	}{
-		{Boolean(false), []byte{False}},
-		{Boolean(true), []byte{True}},
+	data := []writeTestData{
+		{Boolean(false), []byte{0xC2}},
+		{Boolean(true), []byte{0xC3}},
 	}
-
-	for _, test := range data {
-		var buffer bytes.Buffer
-
-		_, _ = test.input.WriteTo(&buffer)
-		result := buffer.Bytes()
-
-		if !bytes.Equal(result, test.output) {
-			t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.output)
-		}
-	}
+	testTypeWriteTo(t, data)
 }
