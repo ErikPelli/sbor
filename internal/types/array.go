@@ -25,19 +25,13 @@ func (a Array) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	nHeader, err := w.Write(header)
-	if err != nil {
-		return 0, err
-	}
 	nTotal := int64(nHeader)
 
-	for _, v := range a {
-		currentN, err := v.WriteTo(w)
-		if err != nil {
-			return 0, err
-		}
-
+	for i := 0; err == nil && i < len(a); i++ {
+		var currentN int64
+		currentN, err = a[i].WriteTo(w)
 		nTotal += currentN
 	}
 
-	return nTotal, nil
+	return nTotal, err
 }
