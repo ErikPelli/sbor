@@ -6,6 +6,7 @@ import (
 
 func TestInt_WriteTo(t *testing.T) {
 	data := []writeTestData{
+		{Int(-1), []byte{0xFF}},
 		{Int(-4), []byte{0xFC}},
 		{Int(120), []byte{0x78}},
 		{Int(-120), []byte{Int8, 0x88}},

@@ -14,7 +14,11 @@ func testTypeWriteTo(t *testing.T, data []writeTestData) {
 	for _, test := range data {
 		var buffer bytes.Buffer
 
-		_, _ = test.input.WriteTo(&buffer)
+		_, err := test.input.WriteTo(&buffer)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
 		result := buffer.Bytes()
 
 		if !bytes.Equal(result, test.expected) {

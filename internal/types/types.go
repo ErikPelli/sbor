@@ -7,7 +7,6 @@ import (
 
 // MessagePack types
 const (
-	FixInt   = 0x00
 	FixMap   = 0x80
 	FixArray = 0x90
 	FixStr   = 0xA0
@@ -81,5 +80,6 @@ type (
 
 type MessagePackType interface {
 	// Len() int
+	// io.ReaderFrom
 	io.WriterTo
 }

@@ -25,24 +25,19 @@ func (m Map) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	nHeader, err := w.Write(header)
-	if err != nil {
-		return 0, err
-	}
 	nTotal := int64(nHeader)
 
 	for k, v := range m {
-		keyN, err := k.WriteTo(w)
-		if err != nil {
-			return 0, err
+		var n int64
+		if err == nil {
+			n, err = k.WriteTo(w)
+			nTotal += n
+			if err == nil {
+				n, err = v.WriteTo(w)
+				nTotal += n
+			}
 		}
-
-		valueN, err := v.WriteTo(w)
-		if err != nil {
-			return 0, err
-		}
-
-		nTotal += keyN + valueN
 	}
 
-	return nTotal, nil
+	return nTotal, err
 }
