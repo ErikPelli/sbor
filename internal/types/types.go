@@ -79,12 +79,12 @@ type (
 )
 
 type MessagePackType interface {
-	// Len() int
+	Len() int
 	// io.ReaderFrom
 	io.WriterTo
 }
 
 type MessagePackMap struct {
-	key   MessagePackType
-	value MessagePackType
+	Key   MessagePackType
+	Value MessagePackType
 }

@@ -24,5 +24,11 @@ func testTypeWriteTo(t *testing.T, data []writeTestData) {
 		if !bytes.Equal(result, test.expected) {
 			t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.expected)
 		}
+
+		inputLen := test.input.Len()
+		expectedLen := len(test.expected)
+		if inputLen != expectedLen {
+			t.Errorf("Invalid result length. Function returned %v. Expected %v.", inputLen, expectedLen)
+		}
 	}
 }
