@@ -4,8 +4,41 @@ import (
 	"encoding/binary"
 	"io"
 	"math"
+	"strconv"
 )
 
+// Len returns the length of the MessagePack encoded array.
+// It is a negative value if the data inside is invalid.
+func (a Array) Len() int {
+	length := len(a)
+	var total int
+
+	switch {
+	case length < 1<<4:
+		total = 1
+	case length <= math.MaxUint16:
+		total = 3
+	case length <= math.MaxUint32:
+		total = 5
+	default:
+		total = -1
+	}
+
+	for i := 0; total >= 0 && i < len(a); i++ {
+		v := a[i].Len()
+		total += v
+
+		if v < 0 {
+			total = -1
+		}
+	}
+
+	return total
+}
+
+// WriteTo writes the encoding of the array value to io.Writer.
+// It implements io.WriterTo interface.
+// It returns the number of written bytes and an optional error.
 func (a Array) WriteTo(w io.Writer) (int64, error) {
 	var header []byte
 	length := len(a)
@@ -22,12 +55,14 @@ func (a Array) WriteTo(w io.Writer) (int64, error) {
 		header = make([]byte, 5)
 		header[0] = Array32
 		binary.BigEndian.PutUint32(header[1:], uint32(length))
+	default:
+		return 0, InvalidTypeError{"Array exceeded max length. Len: " + strconv.Itoa(length)}
 	}
 
 	nHeader, err := w.Write(header)
 	nTotal := int64(nHeader)
 
-	for i := 0; err == nil && i < len(a); i++ {
+	for i := 0; err == nil && i < length; i++ {
 		var currentN int64
 		currentN, err = a[i].WriteTo(w)
 		nTotal += currentN

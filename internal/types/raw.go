@@ -6,9 +6,28 @@ import (
 	"math"
 )
 
-// WriteTo writes a string value to the Writer.
-// It returns the number of the written bytes
-// and an optional error.
+// Len returns the length of the MessagePack encoded string.
+// It is a negative value if the data inside is invalid.
+func (s String) Len() int {
+	length := len(s)
+	switch {
+	case length <= Max5Bit:
+		length += 1
+	case length <= math.MaxUint8:
+		length += 2
+	case length <= math.MaxUint16:
+		length += 3
+	case length <= math.MaxUint32:
+		length += 5
+	default:
+		length = -1
+	}
+	return length
+}
+
+// WriteTo writes the encoding of the string value to io.Writer.
+// It implements io.WriterTo interface.
+// It returns the number of written bytes and an optional error.
 func (s String) WriteTo(w io.Writer) (int64, error) {
 	var bytes []byte
 	length := len(s)
@@ -37,9 +56,26 @@ func (s String) WriteTo(w io.Writer) (int64, error) {
 	return int64(writtenBytes), err
 }
 
-// WriteTo writes a binary slice value to the Writer.
-// It returns the number of the written bytes
-// and an optional error.
+// Len returns the length of the MessagePack encoded string.
+// It is a negative value if the data inside is invalid.
+func (b Binary) Len() int {
+	length := len(b)
+	switch {
+	case length <= math.MaxUint8:
+		length += 2
+	case length <= math.MaxUint16:
+		length += 3
+	case length <= math.MaxUint32:
+		length += 5
+	default:
+		length = -1
+	}
+	return length
+}
+
+// WriteTo writes the encoding of the binary value to io.Writer.
+// It implements io.WriterTo interface.
+// It returns the number of written bytes and an optional error.
 func (b Binary) WriteTo(w io.Writer) (int64, error) {
 	var bytes []byte
 	length := len(b)

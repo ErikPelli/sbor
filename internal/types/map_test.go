@@ -73,7 +73,7 @@ func TestMap_WriteTo_Nested(t *testing.T) {
 	testTypeWriteTo(t, data)
 }
 
-func TestBinary_WriteTo_Map16(t *testing.T) {
+func TestMap_WriteTo_Map16(t *testing.T) {
 	expected := make([]byte, 3, 1003)
 	expected[0] = Map16
 	expected[1] = 0x03 // Length
@@ -83,12 +83,12 @@ func TestBinary_WriteTo_Map16(t *testing.T) {
 	input := make([]MessagePackMap, 1000)
 	for i := range input {
 		elem := MessagePackMap{
-			key:   Int(i),
-			value: Boolean(rand.Uint32()%2 == 0),
+			Key:   Int(i),
+			Value: Boolean(rand.Uint32()%2 == 0),
 		}
 		input[i] = elem
-		_, _ = elem.key.WriteTo(e)
-		_, _ = elem.value.WriteTo(e)
+		_, _ = elem.Key.WriteTo(e)
+		_, _ = elem.Value.WriteTo(e)
 	}
 
 	data := []writeTestData{
@@ -97,7 +97,7 @@ func TestBinary_WriteTo_Map16(t *testing.T) {
 	testTypeWriteTo(t, data)
 }
 
-func TestBinary_WriteTo_Map32(t *testing.T) {
+func TestMap_WriteTo_Map32(t *testing.T) {
 	expected := make([]byte, 5, 80005)
 	expected[0] = Map32
 	expected[1] = 0x00 // Length
@@ -109,12 +109,12 @@ func TestBinary_WriteTo_Map32(t *testing.T) {
 	input := make([]MessagePackMap, 80000)
 	for i := range input {
 		elem := MessagePackMap{
-			key:   Int(i),
-			value: Boolean(rand.Uint32()%2 == 0),
+			Key:   Int(i),
+			Value: Boolean(rand.Uint32()%2 == 0),
 		}
 		input[i] = elem
-		_, _ = elem.key.WriteTo(e)
-		_, _ = elem.value.WriteTo(e)
+		_, _ = elem.Key.WriteTo(e)
+		_, _ = elem.Value.WriteTo(e)
 	}
 
 	data := []writeTestData{
