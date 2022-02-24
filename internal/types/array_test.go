@@ -29,7 +29,7 @@ func TestArray_WriteTo(t *testing.T) {
 	testTypeWriteTo(t, data)
 }
 
-func TestBinary_WriteTo_Arr16(t *testing.T) {
+func TestArray_WriteTo_Arr16(t *testing.T) {
 	expected := make([]byte, 3, 1003)
 	expected[0] = Array16
 	expected[1] = 0x03 // Length
@@ -48,7 +48,7 @@ func TestBinary_WriteTo_Arr16(t *testing.T) {
 	testTypeWriteTo(t, data)
 }
 
-func TestBinary_WriteTo_Arr32(t *testing.T) {
+func TestArray_Len_WriteTo_Arr32(t *testing.T) {
 	expected := make([]byte, 5, 80005)
 	expected[0] = Array32
 	expected[1] = 0x00 // Length
