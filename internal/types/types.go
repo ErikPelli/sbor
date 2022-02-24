@@ -74,7 +74,7 @@ type (
 	String string
 	Binary []byte
 	Array  []MessagePackType
-	Map    map[MessagePackType]MessagePackType
+	Map    []MessagePackMap
 	Struct reflect.Value
 )
 
@@ -82,4 +82,9 @@ type MessagePackType interface {
 	// Len() int
 	// io.ReaderFrom
 	io.WriterTo
+}
+
+type MessagePackMap struct {
+	key   MessagePackType
+	value MessagePackType
 }

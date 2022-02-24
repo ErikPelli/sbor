@@ -27,13 +27,13 @@ func (m Map) WriteTo(w io.Writer) (int64, error) {
 	nHeader, err := w.Write(header)
 	nTotal := int64(nHeader)
 
-	for k, v := range m {
+	for i := range m {
 		var n int64
 		if err == nil {
-			n, err = k.WriteTo(w)
+			n, err = m[i].key.WriteTo(w)
 			nTotal += n
 			if err == nil {
-				n, err = v.WriteTo(w)
+				n, err = m[i].value.WriteTo(w)
 				nTotal += n
 			}
 		}
