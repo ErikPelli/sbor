@@ -62,6 +62,12 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		if value.IsNil() {
 			return types.Nil{}
 		}
+
+		if value.Type() == reflect.TypeOf([]byte(nil)) {
+			// Binary
+			return types.Binary(value.Bytes())
+		}
+
 		fallthrough // Use reflect.Array code
 
 	case reflect.Array:
@@ -84,10 +90,10 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		arrayR := make(types.Array, length)
 
 		// Read until channel is closed
-		for i := 0; i < value.Len(); i++ {
+		for i := 0; i < length; i++ {
 			r, ok := value.Recv()
 			if ok {
-				arrayR = append(arrayR, TypeWrapper(r))
+				arrayR[i] = TypeWrapper(r)
 			}
 		}
 
