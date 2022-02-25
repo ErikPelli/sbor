@@ -8,7 +8,7 @@ import (
 )
 
 type EncodingStruct struct {
-	visited bool
+	visited **struct{} // Indicate if this struct has been already written.
 	types.Struct
 }
 
@@ -18,9 +18,17 @@ func (e EncodingStruct) Len() int {
 }
 
 func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
-	// Skip already parsed struct (avoid infinite parse)
-	if e.visited {
+	// Skip an already parsed struct (avoid infinite parse in cyclic graph)
+	//
+	// Visited is a double pointer to be able to modify its value with
+	// a passed by value EncodingStruct
+	if e.visited != nil && *e.visited != nil {
 		return 0, nil
+	}
+
+	// Use an empty struct to avoid waste of memory
+	if e.visited != nil {
+		*e.visited = &struct{}{}
 	}
 
 	vStruct := reflect.Value(e.Struct)
@@ -77,7 +85,7 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	return result.WriteTo(w)
 }
 
-func typeWrapper(value reflect.Value) types.MessagePackType {
+func typeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 	switch value.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return types.Uint(value.Uint())
@@ -145,20 +153,22 @@ func typeWrapper(value reflect.Value) types.MessagePackType {
 		return arrayR
 
 	case reflect.Struct:
+		visitedPtr := (*struct{})(nil)
 		return EncodingStruct{
-			visited: false,
+			visited: &visitedPtr,
 			Struct:  types.Struct(value),
 		}
 
 	case reflect.Chan:
-		arrayR := make(types.Array, 0)
-		
+		length := value.Len()
+		arrayR := make(types.Array, length)
+
 		// Read until channel is closed
-		ok := true
-		for ok {
-			var r reflect.Value
-			r, ok = value.Recv()
-			arrayR = append(arrayR, typeWrapper(r))
+		for i := 0; i < value.Len(); i++ {
+			r, ok := value.Recv()
+			if ok {
+				arrayR = append(arrayR, typeWrapper(r))
+			}
 		}
 
 		return arrayR
