@@ -1,9 +1,24 @@
 package encode
 
 import (
+	"bytes"
 	"github.com/ErikPelli/sbor/internal/types"
 	"reflect"
 )
+
+func Marshal(v interface{}) ([]byte, error) {
+	value := reflect.ValueOf(v)
+
+	for !value.IsZero() && value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
+
+	result := typeWrapper(value)
+	bufferResult := bytes.NewBuffer(make([]byte, result.Len()))
+	_, err := result.WriteTo(bufferResult)
+
+	return bufferResult.Bytes(), err
+}
 
 func typeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 	switch value.Kind() {
