@@ -78,10 +78,18 @@ type (
 	Struct reflect.Value
 )
 
-type MessagePackType interface {
+type MessagePackTypeEncoder interface {
 	Len() int
-	// io.ReaderFrom
 	io.WriterTo
+}
+
+type MessagePackTypeDecoder interface {
+	// TODO io.ReaderFrom
+}
+
+type MessagePackType interface {
+	MessagePackTypeEncoder
+	MessagePackTypeDecoder
 }
 
 type MessagePackMap struct {
