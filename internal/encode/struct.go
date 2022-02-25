@@ -20,7 +20,7 @@ func (e EncodingStruct) Len() int {
 func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	// Skip an already parsed struct (avoid infinite parse in cyclic graph)
 	//
-	// Visited is a double pointer to be able to modify its value with
+	// visited is a double pointer to be able to modify its value with
 	// a passed by value EncodingStruct
 	if e.visited != nil && *e.visited != nil {
 		return 0, nil
@@ -79,7 +79,7 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 		}
 
 		result[i].Key = types.String(name) // TODO: Support more key types
-		result[i].Value = typeWrapper(fieldValue)
+		result[i].Value = TypeWrapper(fieldValue)
 	}
 
 	return result.WriteTo(w)

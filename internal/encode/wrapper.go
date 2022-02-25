@@ -1,26 +1,11 @@
 package encode
 
 import (
-	"bytes"
 	"github.com/ErikPelli/sbor/internal/types"
 	"reflect"
 )
 
-func Marshal(v interface{}) ([]byte, error) {
-	value := reflect.ValueOf(v)
-
-	for !value.IsZero() && value.Kind() == reflect.Ptr {
-		value = value.Elem()
-	}
-
-	result := typeWrapper(value)
-	bufferResult := bytes.NewBuffer(make([]byte, result.Len()))
-	_, err := result.WriteTo(bufferResult)
-
-	return bufferResult.Bytes(), err
-}
-
-func typeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
+func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 	switch value.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return types.Uint(value.Uint())
@@ -47,13 +32,13 @@ func typeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		return types.Boolean(value.Bool())
 
 	case reflect.Interface:
-		return typeWrapper(value.Elem())
+		return TypeWrapper(value.Elem())
 
 	case reflect.Ptr:
 		if value.IsNil() {
 			return types.Nil{}
 		} else {
-			return typeWrapper(value.Elem())
+			return TypeWrapper(value.Elem())
 		}
 
 	case reflect.Map:
@@ -66,8 +51,8 @@ func typeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		iter := value.MapRange()
 		i := 0
 		for iter.Next() {
-			mapR[i].Key = typeWrapper(iter.Key())
-			mapR[i].Value = typeWrapper(iter.Value())
+			mapR[i].Key = TypeWrapper(iter.Key())
+			mapR[i].Value = TypeWrapper(iter.Value())
 			i++
 		}
 
@@ -83,7 +68,7 @@ func typeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		arrayR := make(types.Array, value.Len())
 		for i := range arrayR {
 			v := value.Index(i)
-			arrayR[i] = typeWrapper(v)
+			arrayR[i] = TypeWrapper(v)
 		}
 		return arrayR
 
@@ -102,7 +87,7 @@ func typeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		for i := 0; i < value.Len(); i++ {
 			r, ok := value.Recv()
 			if ok {
-				arrayR = append(arrayR, typeWrapper(r))
+				arrayR = append(arrayR, TypeWrapper(r))
 			}
 		}
 
