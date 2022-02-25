@@ -14,13 +14,12 @@ type EncodingStruct struct {
 
 func (e EncodingStruct) Len() int {
 	// TODO Improve Struct Len() implementation
-	vStruct := reflect.Value(e.Struct)
-	// Remove pointers to struct
-	for !vStruct.IsZero() && vStruct.Kind() == reflect.Ptr {
-		vStruct = vStruct.Elem()
+	if e.visited != nil && *e.visited != nil {
+		return 0
 	}
 
-	result := make(types.Map, vStruct.NumField())
+	vStruct := reflect.Value(e.Struct)
+	result := make(types.Map, 0, vStruct.NumField())
 
 	for i := 0; i < vStruct.NumField(); i++ {
 		field := vStruct.Type().Field(i)
@@ -47,6 +46,9 @@ func (e EncodingStruct) Len() int {
 			if len(options) >= 2 {
 				if options[1] == "omitempty" {
 					omitempty = true
+					if options[0] != "" {
+						name = options[0]
+					}
 				} else if options[1] == "" {
 					name = options[0]
 				}
@@ -58,8 +60,10 @@ func (e EncodingStruct) Len() int {
 			continue
 		}
 
-		result[i].Key = types.String(name)
-		result[i].Value = TypeWrapper(fieldValue)
+		result = append(result, types.MessagePackMap{
+			Key:   types.String(name), // TODO: Support more key types
+			Value: TypeWrapper(fieldValue),
+		})
 	}
 
 	return result.Len()
@@ -80,12 +84,7 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	vStruct := reflect.Value(e.Struct)
-	// Remove pointers to struct
-	for !vStruct.IsZero() && vStruct.Kind() == reflect.Ptr {
-		vStruct = vStruct.Elem()
-	}
-
-	result := make(types.Map, vStruct.NumField())
+	result := make(types.Map, 0, vStruct.NumField())
 	// TODO: Encode as array
 
 	for i := 0; i < vStruct.NumField(); i++ {
@@ -113,11 +112,13 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 			if len(options) >= 2 {
 				if options[1] == "omitempty" {
 					omitempty = true
+					if options[0] != "" {
+						name = options[0]
+					}
 				} else if options[1] == "" {
 					name = options[0]
-				} else {
-					// TODO: Convert value to another type
 				}
+				// TODO: Convert value to another type
 			}
 		}
 
@@ -126,8 +127,10 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 			continue
 		}
 
-		result[i].Key = types.String(name) // TODO: Support more key types
-		result[i].Value = TypeWrapper(fieldValue)
+		result = append(result, types.MessagePackMap{
+			Key:   types.String(name), // TODO: Support more key types
+			Value: TypeWrapper(fieldValue),
+		})
 	}
 
 	return result.WriteTo(w)
