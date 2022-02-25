@@ -5,28 +5,28 @@ import (
 	"testing"
 )
 
-type writeTestData struct {
-	input    MessagePackType
-	expected []byte
+type WriteTestData struct {
+	Input    MessagePackType
+	Expected []byte
 }
 
-func testTypeWriteTo(t *testing.T, data []writeTestData) {
+func TypeWriteToTest(t *testing.T, data []WriteTestData) {
 	for _, test := range data {
 		var buffer bytes.Buffer
 
-		_, err := test.input.WriteTo(&buffer)
+		_, err := test.Input.WriteTo(&buffer)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
 		result := buffer.Bytes()
 
-		if !bytes.Equal(result, test.expected) {
-			t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.expected)
+		if !bytes.Equal(result, test.Expected) {
+			t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.Expected)
 		}
 
-		inputLen := test.input.Len()
-		expectedLen := len(test.expected)
+		inputLen := test.Input.Len()
+		expectedLen := len(test.Expected)
 		if inputLen != expectedLen {
 			t.Errorf("Invalid result length. Function returned %v. Expected %v.", inputLen, expectedLen)
 		}

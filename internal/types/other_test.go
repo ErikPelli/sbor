@@ -5,16 +5,16 @@ import (
 )
 
 func TestNil_WriteTo(t *testing.T) {
-	data := []writeTestData{
+	data := []WriteTestData{
 		{Nil{}, []byte{0xC0}},
 	}
-	testTypeWriteTo(t, data)
+	TypeWriteToTest(t, data)
 }
 
 func TestBoolean_WriteTo(t *testing.T) {
-	data := []writeTestData{
+	data := []WriteTestData{
 		{Boolean(false), []byte{0xC2}},
 		{Boolean(true), []byte{0xC3}},
 	}
-	testTypeWriteTo(t, data)
+	TypeWriteToTest(t, data)
 }

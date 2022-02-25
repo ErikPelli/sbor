@@ -7,7 +7,7 @@ import (
 )
 
 func TestArray_WriteTo(t *testing.T) {
-	data := []writeTestData{
+	data := []WriteTestData{
 		{Array([]MessagePackType{
 			String("foo"),
 			String("bar")}),
@@ -26,7 +26,7 @@ func TestArray_WriteTo(t *testing.T) {
 			[]byte{0x93, 0x91, 0xC0, 0x95, 0x01, 0x02, 0x03, 0x04, 0x05, 0xC2},
 		},
 	}
-	testTypeWriteTo(t, data)
+	TypeWriteToTest(t, data)
 }
 
 func TestArray_WriteTo_Arr16(t *testing.T) {
@@ -42,10 +42,10 @@ func TestArray_WriteTo_Arr16(t *testing.T) {
 		_, _ = input[i].WriteTo(e)
 	}
 
-	data := []writeTestData{
+	data := []WriteTestData{
 		{Array(input), e.Bytes()},
 	}
-	testTypeWriteTo(t, data)
+	TypeWriteToTest(t, data)
 }
 
 func TestArray_Len_WriteTo_Arr32(t *testing.T) {
@@ -63,8 +63,8 @@ func TestArray_Len_WriteTo_Arr32(t *testing.T) {
 		_, _ = input[i].WriteTo(e)
 	}
 
-	data := []writeTestData{
+	data := []WriteTestData{
 		{Array(input), e.Bytes()},
 	}
-	testTypeWriteTo(t, data)
+	TypeWriteToTest(t, data)
 }
