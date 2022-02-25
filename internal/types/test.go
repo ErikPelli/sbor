@@ -14,6 +14,9 @@ func TypeWriteToTest(t *testing.T, data []WriteTestData) {
 	for _, test := range data {
 		var buffer bytes.Buffer
 
+		inputLen := test.Input.Len()
+		expectedLen := len(test.Expected)
+
 		_, err := test.Input.WriteTo(&buffer)
 		if err != nil {
 			t.Errorf(err.Error())
@@ -25,8 +28,6 @@ func TypeWriteToTest(t *testing.T, data []WriteTestData) {
 			t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.Expected)
 		}
 
-		inputLen := test.Input.Len()
-		expectedLen := len(test.Expected)
 		if inputLen != expectedLen {
 			t.Errorf("Invalid result length. Function returned %v. Expected %v.", inputLen, expectedLen)
 		}
