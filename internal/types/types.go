@@ -67,15 +67,12 @@ type (
 	Nil     struct{}
 	Int     int64
 	Uint    uint64
-	Float   struct {
-		F               float64
-		SinglePrecision bool
-	}
-	String string
-	Binary []byte
-	Array  []MessagePackType
-	Map    []MessagePackMap
-	Struct reflect.Value
+	Float   float64
+	String  string
+	Binary  []byte
+	Array   []MessagePackType
+	Map     []MessagePackMap
+	Struct  reflect.Value
 )
 
 type MessagePackTypeEncoder interface {

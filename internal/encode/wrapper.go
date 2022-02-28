@@ -13,17 +13,8 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return types.Int(value.Int())
 
-	case reflect.Float32:
-		return types.Float{
-			F:               value.Float(),
-			SinglePrecision: true,
-		}
-
-	case reflect.Float64:
-		return types.Float{
-			F:               value.Float(),
-			SinglePrecision: false,
-		}
+	case reflect.Float32, reflect.Float64:
+		return types.Float(value.Float())
 
 	case reflect.String:
 		return types.String(value.String())

@@ -110,11 +110,18 @@ func (u Uint) WriteTo(w io.Writer) (int64, error) {
 	return int64(writtenBytes), err
 }
 
+// cantBeFloat32 returns true if the current floating point
+// value can be represented as a float32.
+func (f Float) canBeFloat32() bool {
+	f32 := float32(f)
+	return float64(f32) == float64(f)
+}
+
 // Len returns the length of the MessagePack encoded float.
 func (f Float) Len() int {
 	var length int
 
-	if f.SinglePrecision {
+	if f.canBeFloat32() {
 		// Header [1 byte] + 32 bit data [4 byte]
 		length = 1 + 4
 	} else {
@@ -131,12 +138,12 @@ func (f Float) Len() int {
 func (f Float) WriteTo(w io.Writer) (int64, error) {
 	bytes := make([]byte, f.Len())
 
-	if f.SinglePrecision {
+	if f.canBeFloat32() {
 		bytes[0] = Float32
-		binary.BigEndian.PutUint32(bytes[1:], math.Float32bits(float32(f.F)))
+		binary.BigEndian.PutUint32(bytes[1:], math.Float32bits(float32(f)))
 	} else {
 		bytes[0] = Float64
-		binary.BigEndian.PutUint64(bytes[1:], math.Float64bits(f.F))
+		binary.BigEndian.PutUint64(bytes[1:], math.Float64bits(float64(f)))
 	}
 
 	writtenBytes, err := w.Write(bytes)
