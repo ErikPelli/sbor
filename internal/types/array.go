@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"io"
 	"math"
-	"strconv"
 )
 
 // Len returns the length of the MessagePack encoded array.
@@ -24,11 +23,11 @@ func (a Array) Len() int {
 		total = -1
 	}
 
-	for i := 0; total >= 0 && i < len(a); i++ {
-		v := a[i].Len()
-		total += v
+	for i := 0; total > 0 && i < len(a); i++ {
+		currentValue := a[i].Len()
+		total += currentValue
 
-		if v < 0 {
+		if currentValue < 0 {
 			total = -1
 		}
 	}
@@ -56,7 +55,7 @@ func (a Array) WriteTo(w io.Writer) (int64, error) {
 		header[0] = Array32
 		binary.BigEndian.PutUint32(header[1:], uint32(length))
 	default:
-		return 0, InvalidTypeError{"Array exceeded max length. Len: " + strconv.Itoa(length)}
+		return 0, ExceededLengthError{Type: "Array", ActualLength: length}
 	}
 
 	nHeader, err := w.Write(header)
