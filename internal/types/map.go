@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"io"
 	"math"
-	"strconv"
 )
 
 // Len returns the length of the MessagePack encoded map.
@@ -24,7 +23,7 @@ func (m Map) Len() int {
 		total = -1
 	}
 
-	for i := 0; total >= 0 && i < len(m); i++ {
+	for i := 0; total > 0 && i < len(m); i++ {
 		k := m[i].Key.Len()
 		v := m[i].Value.Len()
 		total += k + v
@@ -57,23 +56,23 @@ func (m Map) WriteTo(w io.Writer) (int64, error) {
 		header[0] = Map32
 		binary.BigEndian.PutUint32(header[1:], uint32(length))
 	default:
-		return 0, InvalidTypeError{"Map exceeded max length. Len: " + strconv.Itoa(length)}
+		return 0, ExceededLengthError{Type: "Map", ActualLength: length}
 	}
 
 	nHeader, err := w.Write(header)
 	nTotal := int64(nHeader)
 
 	// Write each element to w (key and value)
-	for i := range m {
-		var n int64
+	for i := 0; err == nil && i < length; i++ {
+		var nKey int64
+		var nValue int64
+
+		nKey, err = m[i].Key.WriteTo(w)
 		if err == nil {
-			n, err = m[i].Key.WriteTo(w)
-			nTotal += n
-			if err == nil {
-				n, err = m[i].Value.WriteTo(w)
-				nTotal += n
-			}
+			nValue, err = m[i].Value.WriteTo(w)
 		}
+
+		nTotal += nKey + nValue
 	}
 
 	return nTotal, err

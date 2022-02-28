@@ -10,6 +10,7 @@ import (
 // It is a negative value if the data inside is invalid.
 func (s String) Len() int {
 	length := len(s)
+
 	switch {
 	case length <= Max5Bit:
 		length += 1
@@ -22,6 +23,7 @@ func (s String) Len() int {
 	default:
 		length = -1
 	}
+
 	return length
 }
 
@@ -29,37 +31,43 @@ func (s String) Len() int {
 // It implements io.WriterTo interface.
 // It returns the number of written bytes and an optional error.
 func (s String) WriteTo(w io.Writer) (int64, error) {
-	var bytes []byte
+	var header []byte
 	length := len(s)
 
 	switch {
 	case length <= Max5Bit:
-		bytes = make([]byte, 1, length+1)
-		bytes[0] = FixStr | byte(length)
+		header = make([]byte, 1)
+		header[0] = FixStr | byte(length)
 	case length <= math.MaxUint8:
-		bytes = make([]byte, 2, length+2)
-		bytes[0] = Str8
-		bytes[1] = byte(length)
+		header = make([]byte, 2)
+		header[0] = Str8
+		header[1] = byte(length)
 	case length <= math.MaxUint16:
-		bytes = make([]byte, 3, length+3)
-		bytes[0] = Str16
-		binary.BigEndian.PutUint16(bytes[1:], uint16(length))
+		header = make([]byte, 3)
+		header[0] = Str16
+		binary.BigEndian.PutUint16(header[1:], uint16(length))
 	case length <= math.MaxUint32:
-		bytes = make([]byte, 5, length+5)
-		bytes[0] = Str32
-		binary.BigEndian.PutUint32(bytes[1:], uint32(length))
+		header = make([]byte, 5)
+		header[0] = Str32
+		binary.BigEndian.PutUint32(header[1:], uint32(length))
+	default:
+		return 0, ExceededLengthError{Type: "String", ActualLength: length}
 	}
 
-	// Space in byte slice for the string was allocated using make()
-	bytes = append(bytes, s...)
-	writtenBytes, err := w.Write(bytes)
-	return int64(writtenBytes), err
+	headerBytes, err := w.Write(header)
+	var dataBytes int
+	if err == nil {
+		dataBytes, err = io.WriteString(w, string(s))
+	}
+
+	return int64(headerBytes + dataBytes), err
 }
 
 // Len returns the length of the MessagePack encoded string.
 // It is a negative value if the data inside is invalid.
 func (b Binary) Len() int {
 	length := len(b)
+
 	switch {
 	case length <= math.MaxUint8:
 		length += 2
@@ -70,6 +78,7 @@ func (b Binary) Len() int {
 	default:
 		length = -1
 	}
+
 	return length
 }
 
@@ -77,25 +86,27 @@ func (b Binary) Len() int {
 // It implements io.WriterTo interface.
 // It returns the number of written bytes and an optional error.
 func (b Binary) WriteTo(w io.Writer) (int64, error) {
-	var bytes []byte
+	var header []byte
 	length := len(b)
 
 	switch {
 	case length <= math.MaxUint8:
-		bytes = make([]byte, 2, length+2)
-		bytes[0] = Bin8
-		bytes[1] = byte(length)
+		header = make([]byte, 2)
+		header[0] = Bin8
+		header[1] = byte(length)
 	case length <= math.MaxUint16:
-		bytes = make([]byte, 3, length+3)
-		bytes[0] = Bin16
-		binary.BigEndian.PutUint16(bytes[1:], uint16(length))
+		header = make([]byte, 3)
+		header[0] = Bin16
+		binary.BigEndian.PutUint16(header[1:], uint16(length))
 	case length <= math.MaxUint32:
-		bytes = make([]byte, 5, length+5)
-		bytes[0] = Bin32
-		binary.BigEndian.PutUint32(bytes[1:], uint32(length))
+		header = make([]byte, 5)
+		header[0] = Bin32
+		binary.BigEndian.PutUint32(header[1:], uint32(length))
+	default:
+		return 0, ExceededLengthError{Type: "Binary", ActualLength: length}
 	}
 
-	headerBytes, err := w.Write(bytes)
+	headerBytes, err := w.Write(header)
 	var dataBytes int
 	if err == nil {
 		dataBytes, err = w.Write(b)
