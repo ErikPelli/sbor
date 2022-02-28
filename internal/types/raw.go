@@ -95,7 +95,11 @@ func (b Binary) WriteTo(w io.Writer) (int64, error) {
 		binary.BigEndian.PutUint32(bytes[1:], uint32(length))
 	}
 
-	bytes = append(bytes, b...)
-	writtenBytes, err := w.Write(bytes)
-	return int64(writtenBytes), err
+	headerBytes, err := w.Write(bytes)
+	var dataBytes int
+	if err == nil {
+		dataBytes, err = w.Write(b)
+	}
+
+	return int64(headerBytes + dataBytes), err
 }
