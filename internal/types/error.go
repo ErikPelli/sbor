@@ -1,6 +1,9 @@
 package types
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 type InvalidTypeError struct {
 	Type string
@@ -16,5 +19,13 @@ type ExceededLengthError struct {
 }
 
 func (e ExceededLengthError) Error() string {
-	return e.Type + " exceeded max length. Len: " + strconv.Itoa(e.ActualLength)
+	return e.Type + " exceeded max length (len: " + strconv.Itoa(e.ActualLength) + ")"
+}
+
+type DuplicatedKeyError struct {
+	Key interface{}
+}
+
+func (d DuplicatedKeyError) Error() string {
+	return fmt.Sprintf("Duplicated key %v", d.Key)
 }
