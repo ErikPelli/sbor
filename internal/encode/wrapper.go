@@ -105,7 +105,8 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 
 	case reflect.Invalid:
 		return types.Nil{}
-	}
 
-	return types.Nil{}
+	default:
+		return types.Nil{}
+	}
 }

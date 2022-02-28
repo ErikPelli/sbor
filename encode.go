@@ -14,7 +14,7 @@ func Marshal(v interface{}) ([]byte, error) {
 	}
 
 	result := encode.TypeWrapper(value)
-	bufferResult := bytes.NewBuffer(make([]byte, result.Len()))
+	bufferResult := bytes.NewBuffer(make([]byte, 0, result.Len()))
 	_, err := result.WriteTo(bufferResult)
 
 	return bufferResult.Bytes(), err
