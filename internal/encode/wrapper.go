@@ -42,12 +42,7 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		}
 
 	case reflect.Map:
-		if value.IsNil() {
-			return types.Nil{}
-		}
-
 		mapR := make(types.Map, value.Len())
-
 		iter := value.MapRange()
 		for i := 0; iter.Next(); i++ {
 			mapR[i].Key = TypeWrapper(iter.Key())
@@ -56,10 +51,6 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		return mapR
 
 	case reflect.Slice:
-		if value.IsNil() {
-			return types.Nil{}
-		}
-
 		if value.Type() == reflect.TypeOf([]byte(nil)) {
 			// Binary
 			return types.Binary(value.Bytes())
@@ -76,29 +67,27 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		return arrayR
 
 	case reflect.Struct:
-		visitedPtr := (*struct{})(nil)
-		return EncodingStruct{
-			visited: &visitedPtr,
-			Struct:  types.Struct(value),
-		}
+		return NewEncodingStruct(types.Struct(value))
 
 	case reflect.Chan:
 		length := value.Len()
 		arrayR := make(types.Array, length)
-		var i int
+		if length > 0 {
+			var i int
 
-		defer func() {
 			// Recover from channel panic
-			if errPanic := recover(); errPanic != nil {
-				arrayR = arrayR[:i]
-			}
-		}()
+			defer func() {
+				if errPanic := recover(); errPanic != nil {
+					arrayR = arrayR[:i]
+				}
+			}()
 
-		// Read until channel is closed
-		for i = 0; i < length; i++ {
-			r, ok := value.Recv()
-			if ok {
-				arrayR[i] = TypeWrapper(r)
+			// Read until channel is closed
+			for i = 0; i < length; i++ {
+				r, ok := value.Recv()
+				if ok {
+					arrayR[i] = TypeWrapper(r)
+				}
 			}
 		}
 		return arrayR
