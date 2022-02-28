@@ -62,6 +62,7 @@ func (a Array) WriteTo(w io.Writer) (int64, error) {
 	nHeader, err := w.Write(header)
 	nTotal := int64(nHeader)
 
+	// Write each element to w
 	for i := 0; err == nil && i < length; i++ {
 		var currentN int64
 		currentN, err = a[i].WriteTo(w)

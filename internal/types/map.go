@@ -63,6 +63,7 @@ func (m Map) WriteTo(w io.Writer) (int64, error) {
 	nHeader, err := w.Write(header)
 	nTotal := int64(nHeader)
 
+	// Write each element to w (key and value)
 	for i := range m {
 		var n int64
 		if err == nil {
