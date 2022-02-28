@@ -49,13 +49,10 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		mapR := make(types.Map, value.Len())
 
 		iter := value.MapRange()
-		i := 0
-		for iter.Next() {
+		for i := 0; iter.Next(); i++ {
 			mapR[i].Key = TypeWrapper(iter.Key())
 			mapR[i].Value = TypeWrapper(iter.Value())
-			i++
 		}
-
 		return mapR
 
 	case reflect.Slice:
@@ -88,15 +85,22 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 	case reflect.Chan:
 		length := value.Len()
 		arrayR := make(types.Array, length)
+		var i int
+
+		defer func() {
+			// Recover from channel panic
+			if errPanic := recover(); errPanic != nil {
+				arrayR = arrayR[:i]
+			}
+		}()
 
 		// Read until channel is closed
-		for i := 0; i < length; i++ {
+		for i = 0; i < length; i++ {
 			r, ok := value.Recv()
 			if ok {
 				arrayR[i] = TypeWrapper(r)
 			}
 		}
-
 		return arrayR
 
 	case reflect.Invalid:
