@@ -18,10 +18,9 @@ func NewEncoder(w io.Writer) *Encoder {
 // See the documentation for Marshal for details about the conversion of Go values to MessagePack.
 func (e *Encoder) Encode(v interface{}) error {
 	bytes, err := Marshal(v)
-	if err != nil {
-		return err
+	if err == nil {
+		_, err = e.w.Write(bytes)
 	}
 
-	_, err = e.w.Write(bytes)
 	return err
 }
