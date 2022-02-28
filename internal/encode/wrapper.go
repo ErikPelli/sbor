@@ -55,7 +55,6 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 			// Binary
 			return types.Binary(value.Bytes())
 		}
-
 		fallthrough // Use reflect.Array code
 
 	case reflect.Array:

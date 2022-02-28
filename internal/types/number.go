@@ -9,6 +9,7 @@ import (
 // Len returns the length of the MessagePack encoded integer.
 func (i Int) Len() int {
 	var length int
+
 	switch {
 	case i >= NegativeFixIntMin && i <= math.MaxInt8:
 		length = 1
@@ -21,6 +22,7 @@ func (i Int) Len() int {
 	default:
 		length = 9
 	}
+
 	return length
 }
 
@@ -59,6 +61,7 @@ func (i Int) WriteTo(w io.Writer) (int64, error) {
 // Len returns the length of the MessagePack encoded unsigned integer.
 func (u Uint) Len() int {
 	var length int
+
 	switch {
 	case u <= math.MaxInt8:
 		length = 1
@@ -71,6 +74,7 @@ func (u Uint) Len() int {
 	default:
 		length = 9
 	}
+
 	return length
 }
 
@@ -109,6 +113,7 @@ func (u Uint) WriteTo(w io.Writer) (int64, error) {
 // Len returns the length of the MessagePack encoded float.
 func (f Float) Len() int {
 	var length int
+
 	if f.SinglePrecision {
 		// Header [1 byte] + 32 bit data [4 byte]
 		length = 1 + 4
@@ -116,6 +121,7 @@ func (f Float) Len() int {
 		// Header [1 byte] + 64 bit data [8 byte]
 		length = 1 + 8
 	}
+
 	return length
 }
 
