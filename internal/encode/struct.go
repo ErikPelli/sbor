@@ -14,6 +14,14 @@ type EncodingStruct struct {
 	types.Struct
 }
 
+func NewEncodingStruct(s types.Struct) EncodingStruct {
+	visitedPtr := (*struct{})(nil)
+	return EncodingStruct{
+		visited: &visitedPtr,
+		Struct:  s,
+	}
+}
+
 // Len returns the length of the MessagePack encoded struct.
 // It returns 0 if the struct has been already written.
 func (e EncodingStruct) Len() int {
