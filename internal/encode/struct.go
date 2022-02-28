@@ -7,11 +7,15 @@ import (
 	"strings"
 )
 
+// EncodingStruct is the internal representation of a Go struct
+// which is used to do the encoding to MessagePack.
 type EncodingStruct struct {
 	visited **struct{} // Indicate if this struct has been already written.
 	types.Struct
 }
 
+// Len returns the length of the MessagePack encoded struct.
+// It returns 0 if the struct has been already written.
 func (e EncodingStruct) Len() int {
 	// TODO Improve Struct Len() implementation
 	if e.visited != nil && *e.visited != nil {
@@ -69,6 +73,11 @@ func (e EncodingStruct) Len() int {
 	return result.Len()
 }
 
+// WriteTo writes the encoding of the struct value to io.Writer.
+// It implements io.WriterTo interface.
+// It returns the number of written bytes and an optional error.
+// It doesn't write anything if it has been already written, to
+// prevent cyclic reference between multiple structs.
 func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	// Skip an already parsed struct (avoid infinite parse in cyclic graph)
 	//
@@ -78,7 +87,7 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 		return 0, nil
 	}
 
-	// Use an empty struct to avoid waste of memory
+	// Use an empty struct as flag to avoid waste of memory
 	if e.visited != nil {
 		*e.visited = &struct{}{}
 	}

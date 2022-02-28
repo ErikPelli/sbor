@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+// Marshal returns the MessagePack encoding of v.
 func Marshal(v interface{}) ([]byte, error) {
 	value := reflect.ValueOf(v)
 
