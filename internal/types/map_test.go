@@ -2,7 +2,9 @@ package types
 
 import (
 	"bytes"
+	"fmt"
 	"math/rand"
+	"reflect"
 	"testing"
 )
 
@@ -121,4 +123,90 @@ func TestMap_WriteTo_Map32(t *testing.T) {
 		{Map(input), e.Bytes()},
 	}
 	TypeWriteToTest(t, data)
+}
+
+func BenchmarkMap_Array_Duplication_Check_Small(b *testing.B) {
+	mapValues := []MessagePackMap{
+		{Key: Int(1), Value: Int(4)},
+		{Key: Int(2), Value: Int(3)},
+		{Key: Int(3), Value: Int(2)},
+		{Key: Int(4), Value: Int(1)},
+		{Key: Int(5), Value: Int(9)},
+		{Key: Int(6), Value: Int(8)},
+		{Key: Int(7), Value: Int(7)},
+		{Key: Int(8), Value: Int(6)},
+		{Key: Int(9), Value: Int(5)},
+		{Key: Int(10), Value: Int(4)},
+	}
+
+	length := len(mapValues)
+
+	for n := 0; n < b.N; n++ {
+		keys := make([]MessagePackType, 0, length)
+		for i := 0; i < length; i++ {
+			currentKey := mapValues[i].Key
+			for j := range keys {
+				if reflect.DeepEqual(currentKey, keys[j]) {
+					b.Errorf("Key collision")
+				}
+			}
+			keys = append(keys, currentKey)
+		}
+	}
+}
+
+func BenchmarkMap_Map_Duplication_Check_Small(b *testing.B) {
+	mapValues := []MessagePackMap{
+		{Key: Int(1), Value: Int(4)},
+		{Key: Int(2), Value: Int(3)},
+		{Key: Int(3), Value: Int(2)},
+		{Key: Int(4), Value: Int(1)},
+		{Key: Int(5), Value: Int(9)},
+		{Key: Int(6), Value: Int(8)},
+		{Key: Int(7), Value: Int(7)},
+		{Key: Int(8), Value: Int(6)},
+		{Key: Int(9), Value: Int(5)},
+		{Key: Int(10), Value: Int(4)},
+	}
+
+	length := len(mapValues)
+
+	for n := 0; n < b.N; n++ {
+		keys := make(map[string]struct{}, length)
+		for i := 0; i < length; i++ {
+			currentKey := mapValues[i].Key
+			stringKey := fmt.Sprint(currentKey)
+			_, ok := keys[stringKey]
+			if ok {
+				b.Errorf("Key collision")
+			}
+			keys[stringKey] = struct{}{}
+		}
+	}
+}
+
+func BenchmarkMap_Map_Duplication_Check_Large(b *testing.B) {
+	mapValues := make([]MessagePackMap, 80000)
+	for i := range mapValues {
+		elem := MessagePackMap{
+			Key:   Array{Int(i)},
+			Value: Boolean(rand.Uint32()%2 == 0),
+		}
+		mapValues[i] = elem
+	}
+
+	length := len(mapValues)
+
+	for n := 0; n < b.N; n++ {
+		keys := make(map[string]struct{}, length)
+		for i := 0; i < length; i++ {
+			currentKey := mapValues[i].Key
+			stringKey := fmt.Sprint(currentKey)
+			_, ok := keys[stringKey]
+			if ok {
+				b.Errorf("Key collision")
+			}
+			keys[stringKey] = struct{}{}
+		}
+	}
 }
