@@ -97,7 +97,8 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	valueStruct := reflect.Value(e.Struct)
-	result := make(types.Map, 0, valueStruct.NumField()) // TODO: Encode as array
+	result := make(types.Map, 0, valueStruct.NumField())
+	encodeAsArray := false
 	valueStructType := valueStruct.Type()
 
 	customKeysMap := make(map[string]interface{})
@@ -130,6 +131,10 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 			}
 		}
 
+		if tagOptions.Contains("structAsArray") {
+			encodeAsArray = true
+		}
+
 		if tagOptions.Contains("addcustomkeys") {
 			continue
 		}
@@ -158,5 +163,13 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 		*e.visited = &struct{}{}
 	}
 
-	return result.WriteTo(w)
+	if encodeAsArray {
+		array := make(types.Array, len(result))
+		for i := range result {
+			array[i] = result[i].Value
+		}
+		return array.WriteTo(w)
+	} else {
+		return result.WriteTo(w)
+	}
 }
