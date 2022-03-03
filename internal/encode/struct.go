@@ -135,7 +135,13 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 			encodeAsArray = true
 		}
 
-		if tagOptions.Contains("addcustomkeys") {
+		if tagOptions.Contains("setcustomkeys") {
+			var ok bool
+			mapInterface := fieldValue.Interface()
+			customKeysMap, ok = mapInterface.(map[string]interface{})
+			if !ok {
+				return 0, types.InvalidTypeError{Type: "invalid custom keys type"}
+			}
 			continue
 		}
 
