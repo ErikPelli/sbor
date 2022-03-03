@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"io"
 	"math"
-	"reflect"
 )
 
 // Len returns the length of the MessagePack encoded map.
@@ -63,22 +62,12 @@ func (m Map) WriteTo(w io.Writer) (int64, error) {
 	nHeader, err := w.Write(header)
 	nTotal := int64(nHeader)
 
-	keys := make([]MessagePackType, 0, length)
-
 	// Write each element to w (key and value)
 	for i := 0; err == nil && i < length; i++ {
-		currentKey := m[i].Key
-		for j := range keys {
-			if reflect.DeepEqual(currentKey, keys[j]) {
-				return 0, DuplicatedKeyError{Key: currentKey}
-			}
-		}
-		keys = append(keys, currentKey)
-
 		var nKey int64
 		var nValue int64
 
-		nKey, err = currentKey.WriteTo(w)
+		nKey, err = m[i].Key.WriteTo(w)
 		if err == nil {
 			nValue, err = m[i].Value.WriteTo(w)
 		}

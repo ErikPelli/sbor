@@ -97,13 +97,16 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	valueStruct := reflect.Value(e.Struct)
-	result := make(types.Map, 0, valueStruct.NumField())
+	numFields := valueStruct.NumField()
+	result := make(types.Map, 0, numFields)
+
 	encodeAsArray := false
 	valueStructType := valueStruct.Type()
 
 	customKeysMap := make(map[string]interface{})
+	usedKeysMap := make(map[string]struct{}, numFields)
 
-	for i := 0; i < valueStruct.NumField(); i++ {
+	for i := 0; i < numFields; i++ {
 		field := valueStructType.Field(i)
 		fieldValue := valueStruct.Field(i)
 
@@ -155,6 +158,14 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 			} else {
 				return 0, types.InvalidTypeError{Type: "invalid key " + oldName + " using customkey option"}
 			}
+		} else {
+			// Check duplicated key in standard tag
+			name := string(name.(types.String))
+			_, already := usedKeysMap[name]
+			if already {
+				return 0, types.DuplicatedKeyError{Key: name}
+			}
+			usedKeysMap[name] = struct{}{}
 		}
 
 		result = append(result, types.MessagePackMap{
