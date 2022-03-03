@@ -1,6 +1,7 @@
 package encode
 
 import (
+	"bytes"
 	"github.com/ErikPelli/sbor/internal/types"
 	"reflect"
 	"testing"
@@ -31,6 +32,28 @@ func TestEncodingStruct_WriteTo(t *testing.T) {
 	}
 
 	types.TypeWriteToTest(t, data)
+}
+
+func BenchmarkEncodingStruct_WriteTo(b *testing.B) {
+	exampleStruct := struct {
+		Hello      int     `sbor:"-"`
+		F          float64 `sbor:"float64"`
+		Hyphen     string  `sbor:"-,"`
+		Bytes      []byte  `sbor:",omitempty"`
+		Apple      uint    `sbor:"unsigned,omitempty"`
+		unexported bool
+	}{
+		Hello:  66,
+		F:      9.5,
+		Hyphen: "hyphen",
+		Apple:  32,
+	}
+
+	for i := 0; i < b.N; i++ {
+		enc := TypeWrapper(reflect.ValueOf(exampleStruct))
+		var buffer bytes.Buffer
+		_, _ = enc.WriteTo(&buffer)
+	}
 }
 
 func TestEncodingStruct_WriteTo_Nested(t *testing.T) {
