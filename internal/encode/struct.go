@@ -5,7 +5,6 @@ import (
 	"github.com/ErikPelli/sbor/internal/types"
 	"io"
 	"reflect"
-	"strings"
 )
 
 // EncodingStruct is the internal representation of a Go struct
@@ -26,60 +25,22 @@ func NewEncodingStruct(s types.Struct) EncodingStruct {
 // Len returns the length of the MessagePack encoded struct.
 // It returns 0 if the struct has been already written.
 func (e EncodingStruct) Len() int {
-	// TODO Improve Struct Len() implementation
 	if e.visited != nil && *e.visited != nil {
 		return 0
 	}
 
-	vStruct := reflect.Value(e.Struct)
-	result := make(types.Map, 0, vStruct.NumField())
-
-	for i := 0; i < vStruct.NumField(); i++ {
-		field := vStruct.Type().Field(i)
-		tag := field.Tag.Get("sbor")
-
-		if !field.IsExported() {
-			continue
-		}
-
-		name := field.Name
-		omitempty := false
-
-		if tag != "" {
-			options := strings.Split(tag, ",")
-
-			if len(options) == 1 {
-				if options[0] == "-" {
-					continue
-				} else {
-					name = options[0]
-				}
+	valueStruct := reflect.Value(e.Struct)
+	if result, encodeAsArray, err := structParse(valueStruct); err == nil {
+		if encodeAsArray {
+			array := make(types.Array, len(result))
+			for i := range result {
+				array[i] = result[i].Value
 			}
-
-			if len(options) >= 2 {
-				if options[1] == "omitempty" {
-					omitempty = true
-					if options[0] != "" {
-						name = options[0]
-					}
-				} else if options[1] == "" {
-					name = options[0]
-				}
-			}
+			return array.Len()
 		}
-
-		fieldValue := vStruct.Field(i)
-		if omitempty && fieldValue.IsZero() {
-			continue
-		}
-
-		result = append(result, types.MessagePackMap{
-			Key:   types.String(name), // TODO: Support more key types
-			Value: TypeWrapper(fieldValue),
-		})
+		return result.Len()
 	}
-
-	return result.Len()
+	return 0
 }
 
 // WriteTo writes the encoding of the struct value to io.Writer.
@@ -97,18 +58,41 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	valueStruct := reflect.Value(e.Struct)
-	numFields := valueStruct.NumField()
-	result := make(types.Map, 0, numFields)
+	if result, encodeAsArray, err := structParse(valueStruct); err == nil {
+		// Flag this struct as visited
+		// Use an empty struct as flag to avoid waste of memory
+		if e.visited != nil {
+			*e.visited = &struct{}{}
+		}
 
-	encodeAsArray := false
+		if encodeAsArray {
+			array := make(types.Array, len(result))
+			for i := range result {
+				array[i] = result[i].Value
+			}
+			return array.WriteTo(w)
+		}
+		return result.WriteTo(w)
+	} else {
+		return 0, err
+	}
+}
+
+func structParse(valueStruct reflect.Value) (result types.Map, encodeAsArray bool, err error) {
+	numFields := valueStruct.NumField()
+	result = make(types.Map, 0, numFields)
 	valueStructType := valueStruct.Type()
 
-	customKeysMap := make(map[string]interface{})
+	var customKeysMap map[string]interface{}
 	usedKeysMap := make(map[string]struct{}, numFields)
 
 	for i := 0; i < numFields; i++ {
 		field := valueStructType.Field(i)
 		fieldValue := valueStruct.Field(i)
+
+		if !field.IsExported() {
+			continue
+		}
 
 		// Tag parsing
 		tagValue := field.Tag.Get("sbor")
@@ -134,7 +118,7 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 			}
 		}
 
-		if tagOptions.Contains("structAsArray") {
+		if tagOptions.Contains("structarray") {
 			encodeAsArray = true
 		}
 
@@ -143,7 +127,8 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 			mapInterface := fieldValue.Interface()
 			customKeysMap, ok = mapInterface.(map[string]interface{})
 			if !ok {
-				return 0, types.InvalidTypeError{Type: "invalid custom keys type"}
+				err = types.InvalidTypeError{Type: "invalid custom keys type"}
+				return
 			}
 			continue
 		}
@@ -156,14 +141,16 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 				name = TypeWrapper(reflect.ValueOf(newName))
 				delete(customKeysMap, oldName)
 			} else {
-				return 0, types.InvalidTypeError{Type: "invalid key " + oldName + " using customkey option"}
+				err = types.InvalidTypeError{Type: "invalid key " + oldName + " using customkey option"}
+				return
 			}
 		} else {
 			// Check duplicated key in standard tag
 			name := string(name.(types.String))
 			_, already := usedKeysMap[name]
 			if already {
-				return 0, types.DuplicatedKeyError{Key: name}
+				err = types.DuplicatedKeyError{Key: name}
+				return
 			}
 			usedKeysMap[name] = struct{}{}
 		}
@@ -173,20 +160,5 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 			Value: TypeWrapper(fieldValue),
 		})
 	}
-
-	// Flag this struct as visited
-	// Use an empty struct as flag to avoid waste of memory
-	if e.visited != nil {
-		*e.visited = &struct{}{}
-	}
-
-	if encodeAsArray {
-		array := make(types.Array, len(result))
-		for i := range result {
-			array[i] = result[i].Value
-		}
-		return array.WriteTo(w)
-	} else {
-		return result.WriteTo(w)
-	}
+	return
 }
