@@ -7,7 +7,7 @@ import (
 )
 
 // Len returns the length of the MessagePack encoded array.
-// It is a negative value if the data inside is invalid.
+// It is 0 if the data inside is invalid.
 func (a Array) Len() int {
 	length := len(a)
 	var total int
@@ -20,7 +20,7 @@ func (a Array) Len() int {
 	case length <= math.MaxUint32:
 		total = 5
 	default:
-		total = -1
+		total = 0
 	}
 
 	for i := 0; total > 0 && i < len(a); i++ {
@@ -28,7 +28,7 @@ func (a Array) Len() int {
 		total += currentValue
 
 		if currentValue < 0 {
-			total = -1
+			total = 0
 		}
 	}
 

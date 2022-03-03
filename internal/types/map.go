@@ -8,7 +8,7 @@ import (
 )
 
 // Len returns the length of the MessagePack encoded map.
-// It is a negative value if the data inside is invalid.
+// It is 0 if the data inside is invalid.
 func (m Map) Len() int {
 	length := len(m)
 	var total int
@@ -21,7 +21,7 @@ func (m Map) Len() int {
 	case length <= math.MaxUint32:
 		total = 5
 	default:
-		total = -1
+		total = 0
 	}
 
 	for i := 0; total > 0 && i < len(m); i++ {
@@ -30,7 +30,7 @@ func (m Map) Len() int {
 		total += k + v
 
 		if k < 0 || v < 0 {
-			total = -1
+			total = 0
 		}
 	}
 

@@ -7,7 +7,7 @@ import (
 )
 
 // Len returns the length of the MessagePack encoded string.
-// It is a negative value if the data inside is invalid.
+// It is 0 if the data inside is invalid.
 func (s String) Len() int {
 	length := len(s)
 
@@ -21,7 +21,7 @@ func (s String) Len() int {
 	case length <= math.MaxUint32:
 		length += 5
 	default:
-		length = -1
+		length = 0
 	}
 
 	return length
@@ -64,7 +64,7 @@ func (s String) WriteTo(w io.Writer) (int64, error) {
 }
 
 // Len returns the length of the MessagePack encoded string.
-// It is a negative value if the data inside is invalid.
+// It is 0 if the data inside is invalid.
 func (b Binary) Len() int {
 	length := len(b)
 
@@ -76,7 +76,7 @@ func (b Binary) Len() int {
 	case length <= math.MaxUint32:
 		length += 5
 	default:
-		length = -1
+		length = 0
 	}
 
 	return length
