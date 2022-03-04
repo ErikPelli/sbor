@@ -5,6 +5,8 @@ import (
 	"reflect"
 )
 
+// TypeWrapper convert a primitive type into its messagepack
+// correspondent type using reflection.
 func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 	switch value.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
