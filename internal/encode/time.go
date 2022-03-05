@@ -13,7 +13,7 @@ func convertTimestampToBytes(t time.Time) []byte {
 	if (seconds >> 34) == 0 {
 		data := (uint64(nanoSeconds) << 34) | seconds
 
-		if (data & 0xffffffff00000000) == 0 {
+		if (data & 0xFFFFFFFF00000000) == 0 {
 			// timestamp 32
 			result = make([]byte, 4)
 			binary.BigEndian.PutUint32(result, uint32(data))
