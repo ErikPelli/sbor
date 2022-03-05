@@ -4,19 +4,62 @@ import (
 	"github.com/ErikPelli/sbor/internal/types"
 	"github.com/ErikPelli/sbor/internal/utils"
 	"reflect"
+	"time"
 )
+
+// ExtUserHandler is a function that handle a custom encode defined by the user,
+// and serializes to a MessagePack External.
+type ExtUserHandler struct {
+	Type    byte
+	Handler func(interface{}) ([]byte, error)
+}
 
 // EncoderState contains data to correctly encode the current type.
 type EncoderState struct {
+	extUserHandlers map[reflect.Type]ExtUserHandler
 }
 
 func NewEncoderState() *EncoderState {
 	return &EncoderState{}
 }
 
+func (e *EncoderState) SetExternalTypeHandler(code uint8, typeInvolved interface{}, handler func(interface{}) ([]byte, error)) error {
+	if code < 0 {
+		return utils.OutOfBoundError{Key: int(code)}
+	}
+
+	e.extUserHandlers[reflect.TypeOf(typeInvolved)] = ExtUserHandler{
+		Type:    code,
+		Handler: handler,
+	}
+
+	return nil
+}
+
 // TypeWrapper convert a primitive type into its messagepack
 // correspondent type using reflection.
 func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackTypeEncoder {
+	// Reserved external
+	if value.Type() == reflect.TypeOf(time.Time{}) {
+		return types.External{
+			Type: byte(int8(types.Timestamp)),
+			Data: convertTimestampToBytes(value.Interface().(time.Time)),
+		}
+	}
+
+	// User external
+	if len(e.extUserHandlers) > 0 {
+		handler, ok := e.extUserHandlers[value.Type()]
+		if ok {
+			bytes, err := handler.Handler(value.Interface())
+			if err != nil {
+				return utils.ErrorMessagePackType(err.Error())
+			} else {
+				return types.External{Type: handler.Type, Data: bytes}
+			}
+		}
+	}
+
 	switch value.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return types.Uint(value.Uint())

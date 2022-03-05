@@ -41,3 +41,11 @@ type DuplicatedKeyError struct {
 func (d DuplicatedKeyError) Error() string {
 	return fmt.Sprintf("Duplicated key %v", d.Key)
 }
+
+type OutOfBoundError struct {
+	Key int
+}
+
+func (o OutOfBoundError) Error() string {
+	return fmt.Sprintf("Index %d out of bound", o.Key)
+}
