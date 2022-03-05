@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/binary"
+	"github.com/ErikPelli/sbor/internal/utils"
 	"io"
 	"math"
 )
@@ -56,7 +57,7 @@ func (m Map) WriteTo(w io.Writer) (int64, error) {
 		header[0] = Map32
 		binary.BigEndian.PutUint32(header[1:], uint32(length))
 	default:
-		return 0, ExceededLengthError{Type: "Map", ActualLength: length}
+		return 0, utils.ExceededLengthError{Type: "Map", ActualLength: length}
 	}
 
 	nHeader, err := w.Write(header)

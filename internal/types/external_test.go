@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/ErikPelli/sbor/internal/utils"
 	"math/rand"
 	"testing"
 )
@@ -23,10 +24,10 @@ func TestBinary_WriteTo_FixExt(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			data := []WriteTestData{
+			data := []utils.WriteTestData{
 				{tc.data, tc.expected},
 			}
-			TypeWriteToTest(t, data)
+			utils.TypeWriteToTest(t, data)
 		})
 	}
 }
@@ -43,10 +44,10 @@ func TestBinary_WriteTo_Ext8(t *testing.T) {
 	expected[2] = input.Type
 	expected = append(expected, input.Data...)
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestBinary_WriteTo_Ext16(t *testing.T) {
@@ -62,10 +63,10 @@ func TestBinary_WriteTo_Ext16(t *testing.T) {
 	expected[3] = input.Type
 	expected = append(expected, input.Data...)
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestBinary_WriteTo_Ext32(t *testing.T) {
@@ -83,8 +84,8 @@ func TestBinary_WriteTo_Ext32(t *testing.T) {
 	expected[5] = input.Type
 	expected = append(expected, input.Data...)
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }

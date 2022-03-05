@@ -3,13 +3,14 @@ package types
 import (
 	"bytes"
 	"fmt"
+	"github.com/ErikPelli/sbor/internal/utils"
 	"math/rand"
 	"reflect"
 	"testing"
 )
 
 func TestMap_WriteTo_Simple(t *testing.T) {
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{Map([]MessagePackMap{}),
 			[]byte{0x80},
 		},
@@ -36,16 +37,16 @@ func TestMap_WriteTo_Simple(t *testing.T) {
 			[]byte{0x85, 0xA7, 0x62, 0x6F, 0x6F, 0x6C, 0x65, 0x61, 0x6E, 0xC3, 0xA4, 0x6E, 0x75, 0x6C, 0x6C, 0xC0, 0xA6, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0xA7, 0x66, 0x6F, 0x6F, 0x20, 0x62, 0x61, 0x72, 0xA3, 0x69, 0x6E, 0x74, 0xFF, 0xA5, 0x66, 0x6C, 0x6F, 0x61, 0x74, 0xCA, 0x3F, 0x00, 0x00, 0x00},
 		},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestMap_WriteTo_Nested(t *testing.T) {
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{Map([]MessagePackMap{
 			{String("boolean"), Boolean(true)},
 			{String("null"), Nil{}},
 			{String("string"), String("foo bar")},
-			{String("array"), Array([]MessagePackType{
+			{String("array"), Array([]utils.MessagePackType{
 				String("foo"),
 				String("bar"),
 			})},
@@ -60,7 +61,7 @@ func TestMap_WriteTo_Nested(t *testing.T) {
 			{String("boolean"), Boolean(true)},
 			{String("null"), Nil{}},
 			{String("string"), String("foo bar")},
-			{String("array"), Array([]MessagePackType{
+			{String("array"), Array([]utils.MessagePackType{
 				String("foo"),
 				String("bar"),
 			})},
@@ -72,7 +73,7 @@ func TestMap_WriteTo_Nested(t *testing.T) {
 			[]byte{0x87, 0xA3, 0x69, 0x6E, 0x74, 0xFE, 0xA5, 0x66, 0x6C, 0x6F, 0x61, 0x74, 0xCA, 0x3F, 0x00, 0x00, 0x00, 0xA7, 0x62, 0x6F, 0x6F, 0x6C, 0x65, 0x61, 0x6E, 0xC3, 0xA4, 0x6E, 0x75, 0x6C, 0x6C, 0xC0, 0xA6, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0xA7, 0x66, 0x6F, 0x6F, 0x20, 0x62, 0x61, 0x72, 0xA5, 0x61, 0x72, 0x72, 0x61, 0x79, 0x92, 0xA3, 0x66, 0x6F, 0x6F, 0xA3, 0x62, 0x61, 0x72, 0xA6, 0x6F, 0x62, 0x6A, 0x65, 0x63, 0x74, 0x82, 0xA3, 0x66, 0x6F, 0x6F, 0xFF, 0xA3, 0x62, 0x61, 0x72, 0xCA, 0x3F, 0x00, 0x00, 0x00},
 		},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestMap_WriteTo_Map16(t *testing.T) {
@@ -93,10 +94,10 @@ func TestMap_WriteTo_Map16(t *testing.T) {
 		_, _ = elem.Value.WriteTo(e)
 	}
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{Map(input), e.Bytes()},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestMap_WriteTo_Map32(t *testing.T) {
@@ -119,10 +120,10 @@ func TestMap_WriteTo_Map32(t *testing.T) {
 		_, _ = elem.Value.WriteTo(e)
 	}
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{Map(input), e.Bytes()},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func BenchmarkMap_Array_Duplication_Check_Small(b *testing.B) {
@@ -142,7 +143,7 @@ func BenchmarkMap_Array_Duplication_Check_Small(b *testing.B) {
 	length := len(mapValues)
 
 	for n := 0; n < b.N; n++ {
-		keys := make([]MessagePackType, 0, length)
+		keys := make([]utils.MessagePackType, 0, length)
 		for i := 0; i < length; i++ {
 			currentKey := mapValues[i].Key
 			for j := range keys {

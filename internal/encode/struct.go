@@ -1,8 +1,8 @@
 package encode
 
 import (
-	"github.com/ErikPelli/sbor/internal/tag"
 	"github.com/ErikPelli/sbor/internal/types"
+	"github.com/ErikPelli/sbor/internal/utils"
 	"io"
 	"reflect"
 )
@@ -98,9 +98,9 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 
 		// Tag parsing
 		tagValue := field.Tag.Get("sbor")
-		tagName, tagOptions := tag.ParseTag(tagValue)
+		tagName, tagOptions := utils.ParseTag(tagValue)
 
-		var name types.MessagePackTypeEncoder
+		var name utils.MessagePackTypeEncoder
 		name = types.String(field.Name)
 
 		if tagName == "-" && len(tagValue) == 1 {
@@ -129,7 +129,7 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 			mapInterface := fieldValue.Interface()
 			customKeysMap, ok = mapInterface.(map[string]interface{})
 			if !ok {
-				err = types.InvalidTypeError{Type: "invalid custom keys type"}
+				err = utils.InvalidTypeError{Type: "invalid custom keys type"}
 				return
 			}
 			continue
@@ -143,7 +143,7 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 				name = e.state.TypeWrapper(reflect.ValueOf(newName))
 				delete(customKeysMap, oldName)
 			} else {
-				err = types.InvalidTypeError{Type: "invalid key " + oldName + " using customkey option"}
+				err = utils.InvalidTypeError{Type: "invalid key " + oldName + " using customkey option"}
 				return
 			}
 		} else {
@@ -151,7 +151,7 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 			name := string(name.(types.String))
 			_, already := usedKeysMap[name]
 			if already {
-				err = types.DuplicatedKeyError{Key: name}
+				err = utils.DuplicatedKeyError{Key: name}
 				return
 			}
 			usedKeysMap[name] = struct{}{}

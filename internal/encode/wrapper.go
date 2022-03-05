@@ -2,6 +2,7 @@ package encode
 
 import (
 	"github.com/ErikPelli/sbor/internal/types"
+	"github.com/ErikPelli/sbor/internal/utils"
 	"reflect"
 )
 
@@ -15,7 +16,7 @@ func NewEncoderState() *EncoderState {
 
 // TypeWrapper convert a primitive type into its messagepack
 // correspondent type using reflection.
-func (e *EncoderState) TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
+func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackTypeEncoder {
 	switch value.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return types.Uint(value.Uint())

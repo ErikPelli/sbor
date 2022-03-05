@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/binary"
+	"github.com/ErikPelli/sbor/internal/utils"
 	"io"
 	"math"
 )
@@ -51,7 +52,7 @@ func (s String) WriteTo(w io.Writer) (int64, error) {
 		header[0] = Str32
 		binary.BigEndian.PutUint32(header[1:], uint32(length))
 	default:
-		return 0, ExceededLengthError{Type: "String", ActualLength: length}
+		return 0, utils.ExceededLengthError{Type: "String", ActualLength: length}
 	}
 
 	headerBytes, err := w.Write(header)
@@ -103,7 +104,7 @@ func (b Binary) WriteTo(w io.Writer) (int64, error) {
 		header[0] = Bin32
 		binary.BigEndian.PutUint32(header[1:], uint32(length))
 	default:
-		return 0, ExceededLengthError{Type: "Binary", ActualLength: length}
+		return 0, utils.ExceededLengthError{Type: "Binary", ActualLength: length}
 	}
 
 	headerBytes, err := w.Write(header)

@@ -3,6 +3,7 @@ package encode
 import (
 	"bytes"
 	"github.com/ErikPelli/sbor/internal/types"
+	"github.com/ErikPelli/sbor/internal/utils"
 	"reflect"
 	"sort"
 	"testing"
@@ -19,12 +20,12 @@ func Test_TypeWrapper_Simple(t *testing.T) {
 
 	state := NewEncoderState()
 
-	data := []types.WriteTestData{
+	data := []utils.WriteTestData{
 		{state.TypeWrapper(reflect.ValueOf(uint32(90))), []byte{0x5A}},
 		{state.TypeWrapper(reflect.ValueOf(a)), []byte{0xFC}},
 		{state.TypeWrapper(reflect.ValueOf(9.5)), []byte{0xCA, 0x41, 0x18, 0x00, 0x00}},
 		{state.TypeWrapper(reflect.ValueOf(1.37)), []byte{0xCB, 0x3F, 0xF5, 0xEB, 0x85, 0x1E, 0xB8, 0x51, 0xEC}},
-		{state.TypeWrapper(reflect.ValueOf(types.MessagePackType(types.Int(-4)))), []byte{0xFC}},
+		{state.TypeWrapper(reflect.ValueOf(utils.MessagePackType(types.Int(-4)))), []byte{0xFC}},
 
 		{state.TypeWrapper(reflect.ValueOf(&a)), []byte{0xFC}},
 		{state.TypeWrapper(reflect.ValueOf((*int)(nil))), []byte{0xC0}},
@@ -49,12 +50,12 @@ func Test_TypeWrapper_Simple(t *testing.T) {
 		}{1})), []byte{0x81, 0xA5, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x01}},
 	}
 
-	types.TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func Test_TypeWrapper_Nested(t *testing.T) {
 	state := NewEncoderState()
-	data := []types.WriteTestData{
+	data := []utils.WriteTestData{
 		{state.TypeWrapper(reflect.ValueOf(
 			map[interface{}]interface{}{
 				"int":     -2,

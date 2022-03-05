@@ -1,7 +1,7 @@
 package types
 
 import (
-	"io"
+	"github.com/ErikPelli/sbor/internal/utils"
 	"reflect"
 )
 
@@ -70,7 +70,7 @@ type (
 	Float   float64
 	String  string
 	Binary  []byte
-	Array   []MessagePackType
+	Array   []utils.MessagePackType
 	Map     []MessagePackMap
 	Struct  reflect.Value
 )
@@ -81,25 +81,8 @@ type External struct {
 	Data []byte
 }
 
-// MessagePackTypeEncoder contains the methods used to convert the type into bytes
-type MessagePackTypeEncoder interface {
-	Len() int
-	io.WriterTo
-}
-
-// MessagePackTypeDecoder contains the methods used to convert the bytes into the type
-type MessagePackTypeDecoder interface {
-	// TODO io.ReaderFrom
-}
-
-// MessagePackType is a MessagePack-compatible type
-type MessagePackType interface {
-	MessagePackTypeEncoder
-	MessagePackTypeDecoder
-}
-
 // MessagePackMap is a single Key-Value association
 type MessagePackMap struct {
-	Key   MessagePackType
-	Value MessagePackType
+	Key   utils.MessagePackType
+	Value utils.MessagePackType
 }

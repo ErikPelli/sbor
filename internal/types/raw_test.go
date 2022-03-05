@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/ErikPelli/sbor/internal/utils"
 	"math/rand"
 	"strings"
 	"testing"
@@ -11,10 +12,10 @@ func TestString_WriteTo_FixStr(t *testing.T) {
 	expected := []byte{0xAB, 0x68, 0x65, 0x6C, 0x6C, 0x6F,
 		0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64}
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestString_WriteTo_Str8(t *testing.T) {
@@ -26,10 +27,10 @@ func TestString_WriteTo_Str8(t *testing.T) {
 		expected[i] = 0x23
 	}
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestString_WriteTo_Str16(t *testing.T) {
@@ -42,10 +43,10 @@ func TestString_WriteTo_Str16(t *testing.T) {
 		expected[i] = 0x2D
 	}
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestString_WriteTo_Str32(t *testing.T) {
@@ -60,10 +61,10 @@ func TestString_WriteTo_Str32(t *testing.T) {
 		expected[i] = 0x39
 	}
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestBinary_WriteTo_Bin8(t *testing.T) {
@@ -74,10 +75,10 @@ func TestBinary_WriteTo_Bin8(t *testing.T) {
 	expected[1] = byte(len(input))
 	expected = append(expected, input...)
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestBinary_WriteTo_Bin16(t *testing.T) {
@@ -89,10 +90,10 @@ func TestBinary_WriteTo_Bin16(t *testing.T) {
 	expected[2] = 0xE8 // 1000 (Big Endian)
 	expected = append(expected, input...)
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }
 
 func TestBinary_WriteTo_Bin32(t *testing.T) {
@@ -106,8 +107,8 @@ func TestBinary_WriteTo_Bin32(t *testing.T) {
 	expected[4] = 0x80
 	expected = append(expected, input...)
 
-	data := []WriteTestData{
+	data := []utils.WriteTestData{
 		{input, expected},
 	}
-	TypeWriteToTest(t, data)
+	utils.TypeWriteToTest(t, data)
 }

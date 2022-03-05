@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/binary"
+	"github.com/ErikPelli/sbor/internal/utils"
 	"io"
 	"math"
 )
@@ -83,7 +84,7 @@ func (e External) WriteTo(w io.Writer) (int64, error) {
 		binary.BigEndian.PutUint32(header[1:], uint32(length))
 		header[5] = e.Type
 	default:
-		return 0, ExceededLengthError{Type: "External", ActualLength: length}
+		return 0, utils.ExceededLengthError{Type: "External", ActualLength: length}
 	}
 
 	headerBytes, err := w.Write(header)
