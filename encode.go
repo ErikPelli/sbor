@@ -8,7 +8,8 @@ import (
 
 // Marshal returns the MessagePack encoding of v.
 func Marshal(v interface{}) ([]byte, error) {
-	result := encode.TypeWrapper(reflect.ValueOf(v))
+	state := encode.NewEncoderState()
+	result := state.TypeWrapper(reflect.ValueOf(v))
 	bufferResult := bytes.NewBuffer(make([]byte, 0, result.Len()))
 	_, err := result.WriteTo(bufferResult)
 

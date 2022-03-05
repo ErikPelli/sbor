@@ -5,9 +5,17 @@ import (
 	"reflect"
 )
 
+// EncoderState contains data to correctly encode the current type.
+type EncoderState struct {
+}
+
+func NewEncoderState() *EncoderState {
+	return &EncoderState{}
+}
+
 // TypeWrapper convert a primitive type into its messagepack
 // correspondent type using reflection.
-func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
+func (e *EncoderState) TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 	switch value.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return types.Uint(value.Uint())
@@ -25,21 +33,21 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		return types.Boolean(value.Bool())
 
 	case reflect.Interface:
-		return TypeWrapper(value.Elem())
+		return e.TypeWrapper(value.Elem())
 
 	case reflect.Ptr:
 		if value.IsNil() {
 			return types.Nil{}
 		} else {
-			return TypeWrapper(value.Elem())
+			return e.TypeWrapper(value.Elem())
 		}
 
 	case reflect.Map:
 		mapR := make(types.Map, value.Len())
 		iter := value.MapRange()
 		for i := 0; iter.Next(); i++ {
-			mapR[i].Key = TypeWrapper(iter.Key())
-			mapR[i].Value = TypeWrapper(iter.Value())
+			mapR[i].Key = e.TypeWrapper(iter.Key())
+			mapR[i].Value = e.TypeWrapper(iter.Value())
 		}
 		return mapR
 
@@ -54,12 +62,12 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 		arrayR := make(types.Array, value.Len())
 		for i := range arrayR {
 			v := value.Index(i)
-			arrayR[i] = TypeWrapper(v)
+			arrayR[i] = e.TypeWrapper(v)
 		}
 		return arrayR
 
 	case reflect.Struct:
-		return NewEncodingStruct(types.Struct(value))
+		return NewEncodingStruct(types.Struct(value), e)
 
 	case reflect.Chan:
 		length := value.Len()
@@ -78,7 +86,7 @@ func TypeWrapper(value reflect.Value) types.MessagePackTypeEncoder {
 			for i = 0; i < length; i++ {
 				r, ok := value.Recv()
 				if ok {
-					arrayR[i] = TypeWrapper(r)
+					arrayR[i] = e.TypeWrapper(r)
 				}
 			}
 		}

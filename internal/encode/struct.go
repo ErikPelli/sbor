@@ -11,13 +11,15 @@ import (
 // which is used to do the encoding to MessagePack.
 type EncodingStruct struct {
 	visited **struct{} //  Indicate if this struct already been written
+	state   *EncoderState
 	types.Struct
 }
 
-func NewEncodingStruct(s types.Struct) EncodingStruct {
+func NewEncodingStruct(s types.Struct, e *EncoderState) EncodingStruct {
 	visitedPtr := (*struct{})(nil)
 	return EncodingStruct{
 		visited: &visitedPtr,
+		state:   e,
 		Struct:  s,
 	}
 }
@@ -30,7 +32,7 @@ func (e EncodingStruct) Len() int {
 	}
 
 	valueStruct := reflect.Value(e.Struct)
-	if result, encodeAsArray, err := structParse(valueStruct); err == nil {
+	if result, encodeAsArray, err := e.structParse(valueStruct); err == nil {
 		if encodeAsArray {
 			array := make(types.Array, len(result))
 			for i := range result {
@@ -58,7 +60,7 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	valueStruct := reflect.Value(e.Struct)
-	if result, encodeAsArray, err := structParse(valueStruct); err == nil {
+	if result, encodeAsArray, err := e.structParse(valueStruct); err == nil {
 		// Flag this struct as visited
 		// Use an empty struct as flag to avoid waste of memory
 		if e.visited != nil {
@@ -78,7 +80,7 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	}
 }
 
-func structParse(valueStruct reflect.Value) (result types.Map, encodeAsArray bool, err error) {
+func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map, encodeAsArray bool, err error) {
 	numFields := valueStruct.NumField()
 	result = make(types.Map, 0, numFields)
 	valueStructType := valueStruct.Type()
@@ -138,7 +140,7 @@ func structParse(valueStruct reflect.Value) (result types.Map, encodeAsArray boo
 			oldName := string(name.(types.String))
 			newName, ok := customKeysMap[oldName]
 			if ok {
-				name = TypeWrapper(reflect.ValueOf(newName))
+				name = e.state.TypeWrapper(reflect.ValueOf(newName))
 				delete(customKeysMap, oldName)
 			} else {
 				err = types.InvalidTypeError{Type: "invalid key " + oldName + " using customkey option"}
@@ -157,7 +159,7 @@ func structParse(valueStruct reflect.Value) (result types.Map, encodeAsArray boo
 
 		result = append(result, types.MessagePackMap{
 			Key:   name,
-			Value: TypeWrapper(fieldValue),
+			Value: e.state.TypeWrapper(fieldValue),
 		})
 	}
 	return
