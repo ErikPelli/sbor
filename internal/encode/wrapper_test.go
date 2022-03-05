@@ -17,32 +17,34 @@ func Test_TypeWrapper_Simple(t *testing.T) {
 	ch <- 4
 	ch <- 5
 
+	state := NewEncoderState()
+
 	data := []types.WriteTestData{
-		{TypeWrapper(reflect.ValueOf(uint32(90))), []byte{0x5A}},
-		{TypeWrapper(reflect.ValueOf(a)), []byte{0xFC}},
-		{TypeWrapper(reflect.ValueOf(9.5)), []byte{0xCA, 0x41, 0x18, 0x00, 0x00}},
-		{TypeWrapper(reflect.ValueOf(1.37)), []byte{0xCB, 0x3F, 0xF5, 0xEB, 0x85, 0x1E, 0xB8, 0x51, 0xEC}},
-		{TypeWrapper(reflect.ValueOf(types.MessagePackType(types.Int(-4)))), []byte{0xFC}},
+		{state.TypeWrapper(reflect.ValueOf(uint32(90))), []byte{0x5A}},
+		{state.TypeWrapper(reflect.ValueOf(a)), []byte{0xFC}},
+		{state.TypeWrapper(reflect.ValueOf(9.5)), []byte{0xCA, 0x41, 0x18, 0x00, 0x00}},
+		{state.TypeWrapper(reflect.ValueOf(1.37)), []byte{0xCB, 0x3F, 0xF5, 0xEB, 0x85, 0x1E, 0xB8, 0x51, 0xEC}},
+		{state.TypeWrapper(reflect.ValueOf(types.MessagePackType(types.Int(-4)))), []byte{0xFC}},
 
-		{TypeWrapper(reflect.ValueOf(&a)), []byte{0xFC}},
-		{TypeWrapper(reflect.ValueOf((*int)(nil))), []byte{0xC0}},
-		{TypeWrapper(reflect.ValueOf(nil)), []byte{0xC0}},
-		{TypeWrapper(reflect.ValueOf(true)), []byte{0xC3}},
+		{state.TypeWrapper(reflect.ValueOf(&a)), []byte{0xFC}},
+		{state.TypeWrapper(reflect.ValueOf((*int)(nil))), []byte{0xC0}},
+		{state.TypeWrapper(reflect.ValueOf(nil)), []byte{0xC0}},
+		{state.TypeWrapper(reflect.ValueOf(true)), []byte{0xC3}},
 
-		{TypeWrapper(reflect.ValueOf("hello world")), []byte{0xAB, 0x68, 0x65, 0x6C, 0x6C, 0x6F,
+		{state.TypeWrapper(reflect.ValueOf("hello world")), []byte{0xAB, 0x68, 0x65, 0x6C, 0x6C, 0x6F,
 			0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64}},
-		{TypeWrapper(reflect.ValueOf([]byte{0x01, 0x02, 0x03, 0x04, 0x05})), []byte{0xC4, 0x05, 0x01, 0x02,
+		{state.TypeWrapper(reflect.ValueOf([]byte{0x01, 0x02, 0x03, 0x04, 0x05})), []byte{0xC4, 0x05, 0x01, 0x02,
 			0x03, 0x04, 0x05}},
-		{TypeWrapper(reflect.ValueOf([]string{"foo", "bar"})), []byte{0x92, 0xA3, 0x66, 0x6F, 0x6F,
+		{state.TypeWrapper(reflect.ValueOf([]string{"foo", "bar"})), []byte{0x92, 0xA3, 0x66, 0x6F, 0x6F,
 			0xA3, 0x62, 0x61, 0x72}},
-		{TypeWrapper(reflect.ValueOf((*[2]string)([]string{"foo", "bar"}))), []byte{0x92, 0xA3, 0x66, 0x6F,
+		{state.TypeWrapper(reflect.ValueOf((*[2]string)([]string{"foo", "bar"}))), []byte{0x92, 0xA3, 0x66, 0x6F,
 			0x6F, 0xA3, 0x62, 0x61, 0x72}},
-		{TypeWrapper(reflect.ValueOf([]interface{}{123, nil, 5.76})), []byte{0x93, 0x7B, 0xC0, 0xCB, 0x40,
+		{state.TypeWrapper(reflect.ValueOf([]interface{}{123, nil, 5.76})), []byte{0x93, 0x7B, 0xC0, 0xCB, 0x40,
 			0x17, 0x0A, 0x3D, 0x70, 0xA3, 0xD7, 0x0A}},
 
-		{TypeWrapper(reflect.ValueOf(map[string]int{"int": 1})), []byte{0x81, 0xA3, 0x69, 0x6E, 0x74, 0x01}},
-		{TypeWrapper(reflect.ValueOf(ch)), []byte{0x95, 0x01, 0x02, 0x03, 0x04, 0x05}},
-		{TypeWrapper(reflect.ValueOf(struct {
+		{state.TypeWrapper(reflect.ValueOf(map[string]int{"int": 1})), []byte{0x81, 0xA3, 0x69, 0x6E, 0x74, 0x01}},
+		{state.TypeWrapper(reflect.ValueOf(ch)), []byte{0x95, 0x01, 0x02, 0x03, 0x04, 0x05}},
+		{state.TypeWrapper(reflect.ValueOf(struct {
 			Hello int
 		}{1})), []byte{0x81, 0xA5, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x01}},
 	}
@@ -51,8 +53,9 @@ func Test_TypeWrapper_Simple(t *testing.T) {
 }
 
 func Test_TypeWrapper_Nested(t *testing.T) {
+	state := NewEncoderState()
 	data := []types.WriteTestData{
-		{TypeWrapper(reflect.ValueOf(
+		{state.TypeWrapper(reflect.ValueOf(
 			map[interface{}]interface{}{
 				"int":     -2,
 				"float":   1.99,
