@@ -2,8 +2,20 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"strconv"
 )
+
+// ErrorMessagePackType returns always an error if you try to write it.
+type ErrorMessagePackType string
+
+func (e ErrorMessagePackType) Len() int {
+	return 0
+}
+
+func (e ErrorMessagePackType) WriteTo(w io.Writer) (int64, error) {
+	return 0, InvalidTypeError{string(e)}
+}
 
 type InvalidTypeError struct {
 	Type string

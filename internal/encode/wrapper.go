@@ -97,6 +97,6 @@ func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackTypeEnc
 		return types.Nil{}
 
 	default:
-		return types.Nil{}
+		return utils.ErrorMessagePackType("unknown encoder for this type")
 	}
 }
