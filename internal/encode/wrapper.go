@@ -23,8 +23,16 @@ func NewEncoderState() *EncoderState {
 	return &EncoderState{}
 }
 
+// SetExternalTypeHandler associate a specific data type with a custom encoding
+// function provided by the user.
+// Code is a number between 0 and 127 and indicate the correspondent MessagePack
+// External type code.
+// The handler function receives the value to encode as an empty interface, so it
+// needs to do a type assertion and provide a byte array as result, along with an
+// eventual error (error = nil if there were no errors).
 func (e *EncoderState) SetExternalTypeHandler(code uint8, typeInvolved interface{}, handler func(interface{}) ([]byte, error)) error {
-	if code < 0 {
+	// Max value is 127
+	if code > 0x7F {
 		return utils.OutOfBoundError{Key: int(code)}
 	}
 
@@ -42,7 +50,7 @@ func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackTypeEnc
 	// Reserved external
 	if value.Type() == reflect.TypeOf(time.Time{}) {
 		return types.External{
-			Type: byte(int8(types.Timestamp)),
+			Type: byte(Timestamp),
 			Data: convertTimestampToBytes(value.Interface().(time.Time)),
 		}
 	}

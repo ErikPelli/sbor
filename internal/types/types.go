@@ -51,8 +51,6 @@ const (
 
 	Map16 = 0xDE
 	Map32 = 0xDF
-
-	Timestamp = -1
 )
 
 // General constants

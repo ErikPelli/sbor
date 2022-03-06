@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+var Timestamp int8 = -1
+
 func convertTimestampToBytes(t time.Time) []byte {
 	var result []byte
 	seconds := uint64(t.Unix())
