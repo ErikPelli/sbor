@@ -49,3 +49,11 @@ type OutOfBoundError struct {
 func (o OutOfBoundError) Error() string {
 	return fmt.Sprintf("Index %d out of bound", o.Key)
 }
+
+type InvalidArgumentError struct {
+	Desc string
+}
+
+func (i InvalidArgumentError) Error() string {
+	return "Invalid argument: " + i.Desc
+}

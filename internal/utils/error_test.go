@@ -44,3 +44,10 @@ func TestOutOfBoundError(t *testing.T) {
 		t.Errorf("Empty error. Error: %v", errT)
 	}
 }
+
+func TestInvalidArgumentError(t *testing.T) {
+	errT := InvalidArgumentError{Desc: "test"}
+	if errT.Error() == "" {
+		t.Errorf("Empty error. Error: %v", errT)
+	}
+}
