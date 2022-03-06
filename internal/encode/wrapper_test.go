@@ -2,11 +2,15 @@ package encode
 
 import (
 	"bytes"
+	"encoding/binary"
+	"errors"
 	"github.com/ErikPelli/sbor/internal/types"
 	"github.com/ErikPelli/sbor/internal/utils"
+	"math"
 	"reflect"
 	"sort"
 	"testing"
+	"time"
 )
 
 func Test_TypeWrapper_Simple(t *testing.T) {
@@ -101,4 +105,88 @@ func Test_TypeWrapper_Nested(t *testing.T) {
 			t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.Expected)
 		}
 	}
+}
+
+func Test_TypeWrapper_Error(t *testing.T) {
+	state := NewEncoderState()
+
+	data := []utils.WriteTestData{
+		{state.TypeWrapper(reflect.ValueOf(complex64(5.0))), []byte{}, "complex64"},
+	}
+
+	utils.TypeWriteToTest(t, data, true)
+}
+
+func Test_TypeWrapper_UserHandler(t *testing.T) {
+	state := NewEncoderState()
+	err := state.SetExternalTypeHandler(0x10, complex64(0), func(i interface{}) ([]byte, error) {
+		v, _ := i.(complex64)
+		result := make([]byte, 8)
+
+		binary.BigEndian.PutUint32(result, math.Float32bits(real(v)))
+		binary.BigEndian.PutUint32(result[4:], math.Float32bits(imag(v)))
+
+		return result, nil
+	})
+
+	if err != nil {
+		t.Errorf("Unable to set type handler.")
+	}
+
+	data := []utils.WriteTestData{
+		{state.TypeWrapper(reflect.ValueOf(complex(float32(9.5), float32(9.5)))),
+			[]byte{0xD7, 0x10, 0x41, 0x18, 0x00, 0x00, 0x41, 0x18, 0x00, 0x00},
+			"complex64"},
+	}
+
+	utils.TypeWriteToTest(t, data)
+}
+
+func Test_TypeWrapper_UserHandler_Error1(t *testing.T) {
+	state := NewEncoderState()
+	err := state.SetExternalTypeHandler(0x9F, 0, func(i interface{}) ([]byte, error) {
+		return nil, nil
+	})
+
+	if err == nil {
+		t.Errorf("Error was expected.")
+	}
+}
+
+func Test_TypeWrapper_UserHandler_Error2(t *testing.T) {
+	state := NewEncoderState()
+	err := state.SetExternalTypeHandler(0x10, 0, nil)
+
+	if err == nil {
+		t.Errorf("Error was expected.")
+	}
+}
+
+func Test_TypeWrapper_UserHandler_Error3(t *testing.T) {
+	state := NewEncoderState()
+	err := state.SetExternalTypeHandler(0x10, complex64(0), func(i interface{}) ([]byte, error) {
+		return nil, errors.New("test error")
+	})
+
+	if err != nil {
+		t.Errorf("Unable to set type handler.")
+	}
+
+	data := []utils.WriteTestData{
+		{state.TypeWrapper(reflect.ValueOf(complex(float32(9.5), float32(9.5)))),
+			[]byte{},
+			"complex64"},
+	}
+
+	utils.TypeWriteToTest(t, data, true)
+}
+
+func Test_TypeWrapper_External(t *testing.T) {
+	state := NewEncoderState()
+
+	data := []utils.WriteTestData{
+		{state.TypeWrapper(reflect.ValueOf(time.Unix(0, 0))), []byte{0xD6, 0xFF, 0x00, 0x00, 0x00, 0x00}, "time"},
+	}
+
+	utils.TypeWriteToTest(t, data)
 }

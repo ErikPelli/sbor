@@ -20,7 +20,9 @@ type EncoderState struct {
 }
 
 func NewEncoderState() *EncoderState {
-	return &EncoderState{}
+	return &EncoderState{
+		extUserHandlers: make(map[reflect.Type]ExtUserHandler),
+	}
 }
 
 // SetExternalTypeHandler associate a specific data type with a custom encoding
@@ -34,6 +36,10 @@ func (e *EncoderState) SetExternalTypeHandler(code uint8, typeInvolved interface
 	// Max value is 127
 	if code > 0x7F {
 		return utils.OutOfBoundError{Key: int(code)}
+	}
+
+	if handler == nil {
+		return utils.InvalidTypeError{Type: "nil as function"}
 	}
 
 	e.extUserHandlers[reflect.TypeOf(typeInvolved)] = ExtUserHandler{
