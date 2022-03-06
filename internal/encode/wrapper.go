@@ -47,23 +47,25 @@ func (e *EncoderState) SetExternalTypeHandler(code uint8, typeInvolved interface
 // TypeWrapper convert a primitive type into its messagepack
 // correspondent type using reflection.
 func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackTypeEncoder {
-	// Reserved external
-	if value.Type() == reflect.TypeOf(time.Time{}) {
-		return types.External{
-			Type: byte(Timestamp),
-			Data: convertTimestampToBytes(value.Interface().(time.Time)),
+	if value.IsValid() {
+		// Reserved external
+		if value.Type() == reflect.TypeOf(time.Time{}) {
+			return types.External{
+				Type: byte(Timestamp),
+				Data: convertTimestampToBytes(value.Interface().(time.Time)),
+			}
 		}
-	}
 
-	// User external
-	if len(e.extUserHandlers) > 0 {
-		handler, ok := e.extUserHandlers[value.Type()]
-		if ok {
-			bytes, err := handler.Handler(value.Interface())
-			if err != nil {
-				return utils.ErrorMessagePackType(err.Error())
-			} else {
-				return types.External{Type: handler.Type, Data: bytes}
+		// User external
+		if len(e.extUserHandlers) > 0 {
+			handler, ok := e.extUserHandlers[value.Type()]
+			if ok {
+				bytes, err := handler.Handler(value.Interface())
+				if err != nil {
+					return utils.ErrorMessagePackType(err.Error())
+				} else {
+					return types.External{Type: handler.Type, Data: bytes}
+				}
 			}
 		}
 	}
