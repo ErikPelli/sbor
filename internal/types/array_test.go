@@ -69,3 +69,12 @@ func TestArray_Len_WriteTo_Arr32(t *testing.T) {
 	}
 	utils.TypeWriteToTest(t, data)
 }
+
+func TestArray_Len_ArrError1(t *testing.T) {
+	input := Array(make([]utils.MessagePackType, 1))
+	input[0] = utils.ErrorMessagePackType("test")
+
+	if input.Len() != 0 {
+		t.Error("Error was expected.")
+	}
+}

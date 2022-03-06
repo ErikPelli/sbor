@@ -29,7 +29,7 @@ func (m Map) Len() int {
 		v := m[i].Value.Len()
 		total += k + v
 
-		if k < 0 || v < 0 {
+		if k == 0 || v == 0 {
 			total = 0
 		}
 	}

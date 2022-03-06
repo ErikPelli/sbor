@@ -211,3 +211,15 @@ func BenchmarkMap_Map_Duplication_Check_Large(b *testing.B) {
 		}
 	}
 }
+
+func TestArray_Len_MapError1(t *testing.T) {
+	input := Map(make([]MessagePackMap, 1))
+	input[0] = MessagePackMap{
+		Key:   Boolean(false),
+		Value: utils.ErrorMessagePackType("test"),
+	}
+
+	if input.Len() != 0 {
+		t.Error("Error was expected.")
+	}
+}

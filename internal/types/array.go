@@ -28,7 +28,7 @@ func (a Array) Len() int {
 		currentValue := a[i].Len()
 		total += currentValue
 
-		if currentValue < 0 {
+		if currentValue == 0 {
 			total = 0
 		}
 	}
