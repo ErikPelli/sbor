@@ -13,7 +13,7 @@ func TestString_WriteTo_FixStr(t *testing.T) {
 		0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64}
 
 	data := []utils.WriteTestData{
-		{input, expected},
+		{input, expected, ""},
 	}
 	utils.TypeWriteToTest(t, data)
 }
@@ -28,7 +28,7 @@ func TestString_WriteTo_Str8(t *testing.T) {
 	}
 
 	data := []utils.WriteTestData{
-		{input, expected},
+		{input, expected, ""},
 	}
 	utils.TypeWriteToTest(t, data)
 }
@@ -44,7 +44,7 @@ func TestString_WriteTo_Str16(t *testing.T) {
 	}
 
 	data := []utils.WriteTestData{
-		{input, expected},
+		{input, expected, ""},
 	}
 	utils.TypeWriteToTest(t, data)
 }
@@ -62,7 +62,7 @@ func TestString_WriteTo_Str32(t *testing.T) {
 	}
 
 	data := []utils.WriteTestData{
-		{input, expected},
+		{input, expected, ""},
 	}
 	utils.TypeWriteToTest(t, data)
 }
@@ -72,7 +72,7 @@ func TestString_WriteTo_StrError(t *testing.T) {
 	var expected []byte
 
 	data := []utils.WriteTestData{
-		{input, expected},
+		{input, expected, ""},
 	}
 	utils.TypeWriteToTest(t, data, true)
 }
@@ -86,7 +86,7 @@ func TestBinary_WriteTo_Bin8(t *testing.T) {
 	expected = append(expected, input...)
 
 	data := []utils.WriteTestData{
-		{input, expected},
+		{input, expected, ""},
 	}
 	utils.TypeWriteToTest(t, data)
 }
@@ -101,7 +101,7 @@ func TestBinary_WriteTo_Bin16(t *testing.T) {
 	expected = append(expected, input...)
 
 	data := []utils.WriteTestData{
-		{input, expected},
+		{input, expected, ""},
 	}
 	utils.TypeWriteToTest(t, data)
 }
@@ -118,7 +118,7 @@ func TestBinary_WriteTo_Bin32(t *testing.T) {
 	expected = append(expected, input...)
 
 	data := []utils.WriteTestData{
-		{input, expected},
+		{input, expected, ""},
 	}
 	utils.TypeWriteToTest(t, data)
 }
@@ -128,7 +128,7 @@ func TestString_WriteTo_BinError(t *testing.T) {
 	var expected []byte
 
 	data := []utils.WriteTestData{
-		{input, expected},
+		{input, expected, ""},
 	}
 	utils.TypeWriteToTest(t, data, true)
 }

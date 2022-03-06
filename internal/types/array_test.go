@@ -13,18 +13,21 @@ func TestArray_WriteTo(t *testing.T) {
 			String("foo"),
 			String("bar")}),
 			[]byte{0x92, 0xA3, 0x66, 0x6F, 0x6F, 0xA3, 0x62, 0x61, 0x72},
+			"only strings",
 		},
 		{Array([]utils.MessagePackType{
 			Uint(123),
 			Nil{},
 			Float(5.5)}),
 			[]byte{0x93, 0x7B, 0xC0, 0xCA, 0x40, 0xB0, 0x00, 0x00},
+			"mixed types",
 		},
 		{Array([]utils.MessagePackType{
 			Array([]utils.MessagePackType{Nil{}}),
 			Array([]utils.MessagePackType{Uint(1), Uint(2), Uint(3), Uint(4), Uint(5)}),
 			Boolean(false)}),
 			[]byte{0x93, 0x91, 0xC0, 0x95, 0x01, 0x02, 0x03, 0x04, 0x05, 0xC2},
+			"nested arrays",
 		},
 	}
 	utils.TypeWriteToTest(t, data)
@@ -44,7 +47,7 @@ func TestArray_WriteTo_Arr16(t *testing.T) {
 	}
 
 	data := []utils.WriteTestData{
-		{Array(input), e.Bytes()},
+		{Array(input), e.Bytes(), ""},
 	}
 	utils.TypeWriteToTest(t, data)
 }
@@ -65,7 +68,7 @@ func TestArray_Len_WriteTo_Arr32(t *testing.T) {
 	}
 
 	data := []utils.WriteTestData{
-		{Array(input), e.Bytes()},
+		{Array(input), e.Bytes(), ""},
 	}
 	utils.TypeWriteToTest(t, data)
 }
