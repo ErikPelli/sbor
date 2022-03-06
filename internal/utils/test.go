@@ -10,7 +10,12 @@ type WriteTestData struct {
 	Expected []byte
 }
 
-func TypeWriteToTest(t *testing.T, data []WriteTestData) {
+func TypeWriteToTest(t *testing.T, data []WriteTestData, errorExpected ...bool) {
+	var isErrorInvalid bool
+	if len(errorExpected) == 0 || !errorExpected[0] {
+		isErrorInvalid = true
+	}
+
 	for _, test := range data {
 		var buffer bytes.Buffer
 
@@ -18,8 +23,10 @@ func TypeWriteToTest(t *testing.T, data []WriteTestData) {
 		expectedLen := len(test.Expected)
 
 		_, err := test.Input.WriteTo(&buffer)
-		if err != nil {
-			t.Errorf(err.Error())
+		if isErrorInvalid && err != nil {
+			t.Error(err.Error())
+		} else if !isErrorInvalid && err == nil {
+			t.Error("Error was expected.")
 		}
 
 		result := buffer.Bytes()

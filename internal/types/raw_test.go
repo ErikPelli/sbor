@@ -67,6 +67,16 @@ func TestString_WriteTo_Str32(t *testing.T) {
 	utils.TypeWriteToTest(t, data)
 }
 
+func TestString_WriteTo_StrError(t *testing.T) {
+	input := String(strings.Repeat("0", 4294967298))
+	var expected []byte
+
+	data := []utils.WriteTestData{
+		{input, expected},
+	}
+	utils.TypeWriteToTest(t, data, true)
+}
+
 func TestBinary_WriteTo_Bin8(t *testing.T) {
 	input := Binary(make([]byte, 100))
 	rand.Read(input)
@@ -111,4 +121,14 @@ func TestBinary_WriteTo_Bin32(t *testing.T) {
 		{input, expected},
 	}
 	utils.TypeWriteToTest(t, data)
+}
+
+func TestString_WriteTo_BinError(t *testing.T) {
+	input := Binary(make([]byte, 4294967298))
+	var expected []byte
+
+	data := []utils.WriteTestData{
+		{input, expected},
+	}
+	utils.TypeWriteToTest(t, data, true)
 }

@@ -89,3 +89,16 @@ func TestBinary_WriteTo_Ext32(t *testing.T) {
 	}
 	utils.TypeWriteToTest(t, data)
 }
+
+func TestString_WriteTo_ExtError(t *testing.T) {
+	input := External{
+		Type: 0x03,
+		Data: make([]byte, 4294967298),
+	}
+	var expected []byte
+
+	data := []utils.WriteTestData{
+		{input, expected},
+	}
+	utils.TypeWriteToTest(t, data, true)
+}
