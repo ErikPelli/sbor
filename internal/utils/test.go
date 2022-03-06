@@ -30,12 +30,12 @@ func TypeWriteToTest(t *testing.T, data []WriteTestData, errorExpected ...bool) 
 
 			result := buffer.Bytes()
 
-			if !bytes.Equal(result, test.Expected) {
-				t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.Expected)
-			}
-
 			if inputLen != expectedLen {
 				t.Errorf("Invalid result length. Function returned %v. Expected %v.", inputLen, expectedLen)
+			}
+
+			if !bytes.Equal(result, test.Expected) {
+				t.Errorf("Invalid result. Function returned %v. Expected %v.", result, test.Expected)
 			}
 		})
 	}
