@@ -11,7 +11,7 @@ import (
 // and serializes to a MessagePack External.
 type ExtUserHandler struct {
 	Type    byte
-	Handler func(interface{}) ([]byte, error)
+	Encoder func(interface{}) ([]byte, error)
 }
 
 // EncoderState contains data to correctly encode the current type.
@@ -32,20 +32,17 @@ func NewEncoderState() *EncoderState {
 // The handler function receives the value to encode as an empty interface, so it
 // needs to do a type assertion and provide a byte array as result, along with an
 // eventual error (error = nil if there were no errors).
-func (e *EncoderState) SetExternalTypeHandler(code uint8, typeInvolved interface{}, handler func(interface{}) ([]byte, error)) error {
+func (e *EncoderState) SetExternalTypeHandler(typeInvolved interface{}, handler ExtUserHandler) error {
 	// Max value is 127
-	if code > 0x7F {
-		return utils.OutOfBoundError{Key: int(code)}
+	if handler.Type > 0x7F {
+		return utils.OutOfBoundError{Key: int(handler.Type)}
 	}
 
-	if handler == nil {
+	if handler.Encoder == nil {
 		return utils.InvalidTypeError{Type: "nil as function"}
 	}
 
-	e.extUserHandlers[reflect.TypeOf(typeInvolved)] = ExtUserHandler{
-		Type:    code,
-		Handler: handler,
-	}
+	e.extUserHandlers[reflect.TypeOf(typeInvolved)] = handler
 
 	return nil
 }
@@ -66,7 +63,7 @@ func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackTypeEnc
 		if len(e.extUserHandlers) > 0 {
 			handler, ok := e.extUserHandlers[value.Type()]
 			if ok {
-				bytes, err := handler.Handler(value.Interface())
+				bytes, err := handler.Encoder(value.Interface())
 				if err != nil {
 					return utils.ErrorMessagePackType(err.Error())
 				} else {

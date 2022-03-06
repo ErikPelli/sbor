@@ -119,7 +119,7 @@ func Test_TypeWrapper_Error(t *testing.T) {
 
 func Test_TypeWrapper_UserHandler(t *testing.T) {
 	state := NewEncoderState()
-	err := state.SetExternalTypeHandler(0x10, complex64(0), func(i interface{}) ([]byte, error) {
+	err := state.SetExternalTypeHandler(complex64(0), ExtUserHandler{Type: 0x10, Encoder: func(i interface{}) ([]byte, error) {
 		v, _ := i.(complex64)
 		result := make([]byte, 8)
 
@@ -127,7 +127,7 @@ func Test_TypeWrapper_UserHandler(t *testing.T) {
 		binary.BigEndian.PutUint32(result[4:], math.Float32bits(imag(v)))
 
 		return result, nil
-	})
+	}})
 
 	if err != nil {
 		t.Errorf("Unable to set type handler.")
@@ -144,9 +144,9 @@ func Test_TypeWrapper_UserHandler(t *testing.T) {
 
 func Test_TypeWrapper_UserHandler_Error1(t *testing.T) {
 	state := NewEncoderState()
-	err := state.SetExternalTypeHandler(0x9F, 0, func(i interface{}) ([]byte, error) {
+	err := state.SetExternalTypeHandler(0, ExtUserHandler{Type: 0x9F, Encoder: func(i interface{}) ([]byte, error) {
 		return nil, nil
-	})
+	}})
 
 	if err == nil {
 		t.Errorf("Error was expected.")
@@ -155,7 +155,7 @@ func Test_TypeWrapper_UserHandler_Error1(t *testing.T) {
 
 func Test_TypeWrapper_UserHandler_Error2(t *testing.T) {
 	state := NewEncoderState()
-	err := state.SetExternalTypeHandler(0x10, 0, nil)
+	err := state.SetExternalTypeHandler(0, ExtUserHandler{Type: 0x10, Encoder: nil})
 
 	if err == nil {
 		t.Errorf("Error was expected.")
@@ -164,9 +164,9 @@ func Test_TypeWrapper_UserHandler_Error2(t *testing.T) {
 
 func Test_TypeWrapper_UserHandler_Error3(t *testing.T) {
 	state := NewEncoderState()
-	err := state.SetExternalTypeHandler(0x10, complex64(0), func(i interface{}) ([]byte, error) {
+	err := state.SetExternalTypeHandler(complex64(0), ExtUserHandler{Type: 0x10, Encoder: func(i interface{}) ([]byte, error) {
 		return nil, errors.New("test error")
-	})
+	}})
 
 	if err != nil {
 		t.Errorf("Unable to set type handler.")
