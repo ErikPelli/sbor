@@ -120,7 +120,7 @@ func Test_TypeWrapper_Error(t *testing.T) {
 func Test_TypeWrapper_UserHandler(t *testing.T) {
 	state := NewEncoderState()
 	err := state.SetExternalTypeHandler(complex64(0), ExtUserHandler{Type: 0x10, Encoder: func(i interface{}) ([]byte, error) {
-		v, _ := i.(complex64)
+		v := i.(complex64)
 		result := make([]byte, 8)
 
 		binary.BigEndian.PutUint32(result, math.Float32bits(real(v)))
