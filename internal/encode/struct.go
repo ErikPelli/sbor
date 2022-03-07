@@ -148,13 +148,13 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 			}
 		} else {
 			// Check duplicated key in standard tag
-			name := string(name.(types.String))
-			_, already := usedKeysMap[name]
+			checkName := string(name.(types.String))
+			_, already := usedKeysMap[checkName]
 			if already {
 				err = utils.DuplicatedKeyError{Key: name}
 				return
 			}
-			usedKeysMap[name] = struct{}{}
+			usedKeysMap[checkName] = struct{}{}
 		}
 
 		result = append(result, types.MessagePackMap{
