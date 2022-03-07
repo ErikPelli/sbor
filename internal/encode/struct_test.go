@@ -88,3 +88,114 @@ func TestEncodingStruct_WriteTo_Nested(t *testing.T) {
 
 	utils.TypeWriteToTest(t, data)
 }
+
+func TestEncodingStruct_WriteTo_Array(t *testing.T) {
+	type Integers struct {
+		A int8   `sbor:"a,structarray"`
+		B uint16 `sbor:"b"`
+		C int32  `sbor:"c"`
+	}
+
+	exampleStruct := struct {
+		Hyphen string   `sbor:"h"`
+		I      Integers `sbor:"i"`
+	}{
+		Hyphen: "hyphen",
+		I: Integers{
+			A: -8,
+			B: 32000,
+			C: -40000,
+		},
+	}
+
+	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
+	data := []utils.WriteTestData{
+		{enc, []byte{0x82, 0xA1, 0x68, 0xA6, 0x68, 0x79, 0x70, 0x68, 0x65, 0x6E, 0xA1, 0x69, 0x93, 0xF8, 0xCD, 0x7D, 0x00, 0xD2, 0xFF, 0xFF, 0x63, 0xC0}, "nested array struct"},
+	}
+
+	utils.TypeWriteToTest(t, data)
+}
+
+func TestEncodingStruct_WriteTo_DuplicatedKey(t *testing.T) {
+	type Integers struct {
+		A int8   `sbor:"a"`
+		B uint16 `sbor:"a"`
+		C int32  `sbor:"c"`
+	}
+
+	exampleStruct := Integers{
+		A: -8,
+		B: 32000,
+		C: -40000,
+	}
+
+	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
+	data := []utils.WriteTestData{
+		{enc, []byte{}, "duplicated key"},
+	}
+
+	utils.TypeWriteToTest(t, data, true)
+}
+
+func TestEncodingStruct_WriteTo_SetCustomKeys(t *testing.T) {
+	type Integers struct {
+		A map[string]int8 `sbor:",setcustomkeys"`
+		B uint16          `sbor:"b,customkey"`
+		C int32           `sbor:"c,customkey"`
+	}
+
+	exampleStruct := Integers{
+		A: map[string]int8{"b": -8, "c": 38},
+		B: 32000,
+		C: -40000,
+	}
+
+	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
+	data := []utils.WriteTestData{
+		{enc, []byte{0x82, 0xF8, 0xCD, 0x7D, 0x00, 0x26, 0xD2, 0xFF, 0xFF, 0x63, 0xC0}, "custom key"},
+	}
+
+	utils.TypeWriteToTest(t, data)
+}
+
+func TestEncodingStruct_WriteTo_SetCustomKeys_Duplicated(t *testing.T) {
+	type Integers struct {
+		A map[string]interface{} `sbor:",setcustomkeys"`
+		B uint16                 `sbor:"b,customkey"`
+		C int32                  `sbor:"b,customkey"`
+	}
+
+	exampleStruct := Integers{
+		A: map[string]interface{}{"b": -8, "c": 38},
+		B: 32000,
+		C: -40000,
+	}
+
+	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
+	data := []utils.WriteTestData{
+		{enc, []byte{}, "duplicated custom key"},
+	}
+
+	utils.TypeWriteToTest(t, data, true)
+}
+
+func TestEncodingStruct_WriteTo_SetCustomKeys_Invalid(t *testing.T) {
+	type Integers struct {
+		A int8   `sbor:",setcustomkeys"`
+		B uint16 `sbor:"b"`
+		C int32  `sbor:"c"`
+	}
+
+	exampleStruct := Integers{
+		A: -8,
+		B: 32000,
+		C: -40000,
+	}
+
+	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
+	data := []utils.WriteTestData{
+		{enc, []byte{}, "invalid setcustomkeys"},
+	}
+
+	utils.TypeWriteToTest(t, data, true)
+}
