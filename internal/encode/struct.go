@@ -125,14 +125,25 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 		}
 
 		if tagOptions.Contains("setcustomkeys") {
-			var ok bool
-			mapInterface := fieldValue.Interface()
-			customKeysMap, ok = mapInterface.(map[string]interface{})
-			if !ok {
-				err = utils.InvalidTypeError{Type: "invalid custom keys type"}
+			func() {
+				defer func() {
+					if errPanic := recover(); errPanic != nil {
+						err = utils.InvalidTypeError{Type: "invalid custom keys type"}
+					}
+				}()
+
+				customKeysMap = make(map[string]interface{}, fieldValue.Len())
+				iter := fieldValue.MapRange()
+				for iter.Next() {
+					customKeysMap[iter.Key().String()] = iter.Value().Interface()
+				}
+			}()
+
+			if err != nil {
 				return
+			} else {
+				continue
 			}
-			continue
 		}
 
 		if tagOptions.Contains("customkey") {
