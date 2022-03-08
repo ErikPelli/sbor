@@ -7,15 +7,15 @@ import (
 
 func TestNil_WriteTo(t *testing.T) {
 	data := []utils.WriteTestData{
-		{Nil{}, []byte{0xC0}, ""},
+		{Input: Nil{}, Expected: []byte{0xC0}},
 	}
 	utils.TypeWriteToTest(t, data)
 }
 
 func TestBoolean_WriteTo(t *testing.T) {
 	data := []utils.WriteTestData{
-		{Boolean(false), []byte{0xC2}, "false"},
-		{Boolean(true), []byte{0xC3}, "true"},
+		{Input: Boolean(false), Expected: []byte{0xC2}, Name: "false"},
+		{Input: Boolean(true), Expected: []byte{0xC3}, Name: "true"},
 	}
 	utils.TypeWriteToTest(t, data)
 }

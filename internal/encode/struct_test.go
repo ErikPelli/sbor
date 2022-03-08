@@ -25,11 +25,11 @@ func TestEncodingStruct_WriteTo(t *testing.T) {
 
 	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
 	data := []utils.WriteTestData{
-		{enc, []byte{0x83, 0xA7, 0x66, 0x6C, 0x6F, 0x61, 0x74, 0x36, 0x34, 0xCA, 0x41, 0x18, 0x00, 0x00, 0xA1,
-			0x2D, 0xA6, 0x68, 0x79, 0x70, 0x68, 0x65, 0x6E, 0xA8, 0x75, 0x6E, 0x73, 0x69, 0x67, 0x6E, 0x65, 0x64, 0x20}, "example struct"},
+		{Input: enc, Expected: []byte{0x83, 0xA7, 0x66, 0x6C, 0x6F, 0x61, 0x74, 0x36, 0x34, 0xCA, 0x41, 0x18, 0x00, 0x00, 0xA1,
+			0x2D, 0xA6, 0x68, 0x79, 0x70, 0x68, 0x65, 0x6E, 0xA8, 0x75, 0x6E, 0x73, 0x69, 0x67, 0x6E, 0x65, 0x64, 0x20}, Name: "example struct"},
 
 		// Already visited
-		{enc, []byte{}, "already visited"},
+		{Input: enc, Expected: []byte{}, Name: "already visited"},
 	}
 
 	utils.TypeWriteToTest(t, data)
@@ -79,11 +79,11 @@ func TestEncodingStruct_WriteTo_Nested(t *testing.T) {
 
 	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
 	data := []utils.WriteTestData{
-		{enc, []byte{0x82, 0xA1, 0x68, 0xA6, 0x68, 0x79, 0x70, 0x68, 0x65, 0x6E, 0xA1, 0x69, 0x83, 0xA1,
-			0x61, 0xF8, 0xA1, 0x62, 0xCD, 0x7D, 0x00, 0xA1, 0x63, 0xD2, 0xFF, 0xFF, 0x63, 0xC0}, "nested struct"},
+		{Input: enc, Expected: []byte{0x82, 0xA1, 0x68, 0xA6, 0x68, 0x79, 0x70, 0x68, 0x65, 0x6E, 0xA1, 0x69, 0x83, 0xA1,
+			0x61, 0xF8, 0xA1, 0x62, 0xCD, 0x7D, 0x00, 0xA1, 0x63, 0xD2, 0xFF, 0xFF, 0x63, 0xC0}, Name: "nested struct"},
 
 		// Already visited
-		{enc, []byte{}, "already visited nested struct"},
+		{Input: enc, Expected: []byte{}, Name: "already visited nested struct"},
 	}
 
 	utils.TypeWriteToTest(t, data)
@@ -110,7 +110,7 @@ func TestEncodingStruct_WriteTo_Array(t *testing.T) {
 
 	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
 	data := []utils.WriteTestData{
-		{enc, []byte{0x82, 0xA1, 0x68, 0xA6, 0x68, 0x79, 0x70, 0x68, 0x65, 0x6E, 0xA1, 0x69, 0x93, 0xF8, 0xCD, 0x7D, 0x00, 0xD2, 0xFF, 0xFF, 0x63, 0xC0}, "nested array struct"},
+		{Input: enc, Expected: []byte{0x82, 0xA1, 0x68, 0xA6, 0x68, 0x79, 0x70, 0x68, 0x65, 0x6E, 0xA1, 0x69, 0x93, 0xF8, 0xCD, 0x7D, 0x00, 0xD2, 0xFF, 0xFF, 0x63, 0xC0}, Name: "nested array struct"},
 	}
 
 	utils.TypeWriteToTest(t, data)
@@ -131,7 +131,7 @@ func TestEncodingStruct_WriteTo_DuplicatedKey(t *testing.T) {
 
 	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
 	data := []utils.WriteTestData{
-		{enc, []byte{}, "duplicated key"},
+		{Input: enc, Expected: []byte{}, Name: "duplicated key"},
 	}
 
 	utils.TypeWriteToTest(t, data, true)
@@ -152,7 +152,7 @@ func TestEncodingStruct_WriteTo_SetCustomKeys(t *testing.T) {
 
 	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
 	data := []utils.WriteTestData{
-		{enc, []byte{0x82, 0xF8, 0xCD, 0x7D, 0x00, 0x26, 0xD2, 0xFF, 0xFF, 0x63, 0xC0}, "custom key"},
+		{Input: enc, Expected: []byte{0x82, 0xF8, 0xCD, 0x7D, 0x00, 0x26, 0xD2, 0xFF, 0xFF, 0x63, 0xC0}, Name: "custom key"},
 	}
 
 	utils.TypeWriteToTest(t, data)
@@ -173,7 +173,7 @@ func TestEncodingStruct_WriteTo_SetCustomKeys_Duplicated(t *testing.T) {
 
 	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
 	data := []utils.WriteTestData{
-		{enc, []byte{}, "duplicated custom key"},
+		{Input: enc, Expected: []byte{}, Name: "duplicated custom key"},
 	}
 
 	utils.TypeWriteToTest(t, data, true)
@@ -194,7 +194,7 @@ func TestEncodingStruct_WriteTo_SetCustomKeys_Invalid(t *testing.T) {
 
 	enc := NewEncodingStruct(types.Struct(reflect.ValueOf(exampleStruct)), NewEncoderState())
 	data := []utils.WriteTestData{
-		{enc, []byte{}, "invalid setcustomkeys"},
+		{Input: enc, Expected: []byte{}, Name: "invalid setcustomkeys"},
 	}
 
 	utils.TypeWriteToTest(t, data, true)
