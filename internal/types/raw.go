@@ -64,6 +64,12 @@ func (s String) WriteTo(w io.Writer) (int64, error) {
 	return int64(headerBytes + dataBytes), err
 }
 
+func (s *String) Write(p []byte) (int, error) {
+	// A string can have an arbitrary size
+	*s = String(p)
+	return len(p), nil
+}
+
 // Len returns the length of the MessagePack encoded string.
 // It is 0 if the data inside is invalid.
 func (b Binary) Len() int {
@@ -114,4 +120,10 @@ func (b Binary) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	return int64(headerBytes + dataBytes), err
+}
+
+func (b *Binary) Write(p []byte) (int, error) {
+	// A binary slice can have an arbitrary size
+	*b = p
+	return len(p), nil
 }
