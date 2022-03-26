@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/binary"
+	"github.com/ErikPelli/sbor/internal/utils"
 	"io"
 	"math"
 )
@@ -58,6 +59,30 @@ func (i Int) WriteTo(w io.Writer) (int64, error) {
 	return int64(writtenBytes), err
 }
 
+func (i *Int) Write(p []byte) (int, error) {
+	var err error
+	length := len(p)
+
+	switch length {
+	case 1:
+		// fix int and int8
+		*i = Int(p[0])
+	case 2:
+		// int16
+		*i = Int(int16(binary.BigEndian.Uint16(p)))
+	case 4:
+		// int32
+		*i = Int(int32(binary.BigEndian.Uint32(p)))
+	case 8:
+		// int64
+		*i = Int(int64(binary.BigEndian.Uint64(p)))
+	default:
+		err = utils.InvalidArgumentError{Desc: "Invalid int length"}
+	}
+
+	return length, err
+}
+
 // Len returns the length of the MessagePack encoded unsigned integer.
 func (u Uint) Len() int {
 	var length int
@@ -110,6 +135,30 @@ func (u Uint) WriteTo(w io.Writer) (int64, error) {
 	return int64(writtenBytes), err
 }
 
+func (u *Uint) Write(p []byte) (int, error) {
+	var err error
+	length := len(p)
+
+	switch length {
+	case 1:
+		// fix uint and uint8
+		*u = Uint(p[0])
+	case 2:
+		// uint16
+		*u = Uint(binary.BigEndian.Uint16(p))
+	case 4:
+		// uint32
+		*u = Uint(binary.BigEndian.Uint32(p))
+	case 8:
+		// uint64
+		*u = Uint(binary.BigEndian.Uint64(p))
+	default:
+		err = utils.InvalidArgumentError{Desc: "Invalid uint length"}
+	}
+
+	return length, err
+}
+
 // cantBeFloat32 returns true if the current floating point
 // value can be represented as a float32.
 func (f Float) canBeFloat32() bool {
@@ -148,4 +197,22 @@ func (f Float) WriteTo(w io.Writer) (int64, error) {
 
 	writtenBytes, err := w.Write(bytes)
 	return int64(writtenBytes), err
+}
+
+func (f *Float) Write(p []byte) (int, error) {
+	var err error
+	length := len(p)
+
+	switch length {
+	case 4:
+		// float32
+		*f = Float(math.Float32frombits(binary.BigEndian.Uint32(p)))
+	case 8:
+		// float64
+		*f = Float(math.Float64frombits(binary.BigEndian.Uint64(p)))
+	default:
+		err = utils.InvalidArgumentError{Desc: "Invalid float length"}
+	}
+
+	return length, err
 }

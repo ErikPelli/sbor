@@ -10,7 +10,7 @@ type MessagePackTypeEncoder interface {
 
 // MessagePackTypeDecoder contains the methods used to convert the bytes into the type
 type MessagePackTypeDecoder interface {
-	// TODO io.ReaderFrom
+	io.Writer
 }
 
 // MessagePackType is a MessagePack-compatible type
