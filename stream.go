@@ -90,3 +90,27 @@ func (e *Encoder) Encode(v interface{}) error {
 
 	return err
 }
+
+type CustomDecoder struct {
+	Decoder func(b []byte) (interface{}, error)
+}
+
+type Decoder struct {
+	r io.Reader
+}
+
+func NewDecoder(r io.Reader) *Decoder {
+	return &Decoder{
+		r: r,
+	}
+}
+
+func (d *Decoder) SetExternalType(id int8, value interface{}, c ...CustomDecoder) error {
+	// TODO
+	return nil
+}
+
+func (d *Decoder) Decode(v interface{}) error {
+	// TODO
+	return nil
+}
