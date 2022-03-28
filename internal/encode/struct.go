@@ -81,6 +81,14 @@ func (e EncodingStruct) WriteTo(w io.Writer) (int64, error) {
 	}
 }
 
+// ReadFrom does nothing with EncodingStruct, because it can be used only
+// when encoding.
+// This method is defined to implement MessagePackType interface.
+func (e *EncodingStruct) ReadFrom(_ byte, _ io.Reader) (n int64, err error) {
+	// Do nothing
+	return 0, nil
+}
+
 func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map, encodeAsArray bool, err error) {
 	numFields := valueStruct.NumField()
 	result = make(types.Map, 0, numFields)
@@ -101,7 +109,7 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 		tagValue := field.Tag.Get("sbor")
 		tagName, tagOptions := utils.ParseTag(tagValue)
 
-		var name utils.MessagePackTypeEncoder
+		var name utils.MessagePackType
 		name = types.String(field.Name)
 
 		if tagName == "-" && len(tagValue) == 1 {

@@ -50,7 +50,7 @@ func (e *EncoderState) SetExternalTypeHandler(typeInvolved interface{}, handler 
 
 // TypeWrapper convert a primitive type into its messagepack
 // correspondent type using reflection.
-func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackTypeEncoder {
+func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackType {
 	if value.IsValid() {
 		// Reserved external
 		if value.Type() == reflect.TypeOf(time.Time{}) {
