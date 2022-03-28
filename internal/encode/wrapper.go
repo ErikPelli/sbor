@@ -19,6 +19,7 @@ type EncoderState struct {
 	extUserHandlers map[reflect.Type]ExtUserHandler
 }
 
+// NewEncoderState returns a new empty EncoderState, to create a new encoding context.
 func NewEncoderState() *EncoderState {
 	return &EncoderState{
 		extUserHandlers: make(map[reflect.Type]ExtUserHandler),

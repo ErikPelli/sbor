@@ -15,6 +15,7 @@ type EncodingStruct struct {
 	types.Struct
 }
 
+// NewEncodingStruct creates a new encoding struct given a struct obtained using reflection.
 func NewEncodingStruct(s types.Struct, e *EncoderState) EncodingStruct {
 	visitedPtr := (*struct{})(nil)
 	return EncodingStruct{
