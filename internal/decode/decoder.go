@@ -59,28 +59,37 @@ func (d *DecoderState) NextType(r io.Reader) (utils.MessagePackType, error) {
 	}
 
 	typeCode := codeSlice[0]
+	var currentType *utils.MessagePackType
 
 	switch typeCode {
 	case types.Int8, types.Int16, types.Int32, types.Int64:
-		return new(types.Int).ReadFrom(typeCode, r)
+		*currentType = new(types.Int)
 	case types.Uint8, types.Uint16, types.Uint32, types.Uint64:
-		return new(types.Uint).ReadFrom(typeCode, r)
+		*currentType = new(types.Uint)
+	// TODO finish types
+	// case ....
+	default:
+		// Check ranges (fixed values)
+		switch {
+		case typeCode <= 0x7F || typeCode >= 0xE0:
+			// Positive and negative fixed integer
+			*currentType = new(types.Int)
+		case typeCode <= types.FixMap+15:
+			// Fixed Map
+			*currentType = new(types.Map)
+		case typeCode <= types.FixArray+15:
+			// Fixed Array
+			*currentType = new(types.Array)
+		case typeCode <= types.FixStr+31:
+			// Fixed String
+			*currentType = new(types.String)
+		}
 	}
 
-	switch {
-	case typeCode <= 0x7F || typeCode >= 0xE0:
-		// Positive and negative fixed integer
-		return new(types.Int).ReadFrom(typeCode, r)
-	case typeCode <= types.FixMap+15:
-		// Fixed Map
-		return new(types.Map).ReadFrom(typeCode, r)
-	case typeCode <= types.FixArray+15:
-		// Fixed Array
-		return new(types.Array).ReadFrom(typeCode, r)
-	case typeCode <= types.FixStr+31:
-		// Fixed String
-		return new(types.String).ReadFrom(typeCode, r)
+	if currentType == nil {
+		return nil, utils.InvalidTypeError{Type: "Unable to decode " + strconv.Itoa(int(typeCode))}
 	}
 
-	return nil, utils.InvalidTypeError{Type: "Unable to decode " + strconv.Itoa(int(typeCode))}
+	_, err = (*currentType).ReadFrom(typeCode, r)
+	return *currentType, err
 }
