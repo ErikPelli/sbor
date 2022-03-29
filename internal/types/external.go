@@ -95,3 +95,8 @@ func (e External) WriteTo(w io.Writer) (int64, error) {
 
 	return int64(headerBytes + dataBytes), err
 }
+
+func (e *External) ReadFrom(code byte, r io.Reader) (int64, error) {
+	// TODO
+	return 0, utils.InvalidArgumentError{}
+}

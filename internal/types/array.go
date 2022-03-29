@@ -71,3 +71,8 @@ func (a Array) WriteTo(w io.Writer) (int64, error) {
 
 	return nTotal, err
 }
+
+func (a *Array) ReadFrom(code byte, r io.Reader) (int64, error) {
+	// TODO
+	return 0, utils.InvalidArgumentError{}
+}

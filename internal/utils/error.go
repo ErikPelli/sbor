@@ -17,6 +17,10 @@ func (e ErrorMessagePackType) WriteTo(w io.Writer) (int64, error) {
 	return 0, InvalidTypeError{string(e)}
 }
 
+func (e ErrorMessagePackType) ReadFrom(code byte, r io.Reader) (n int64, err error) {
+	return 0, InvalidTypeError{string(e)}
+}
+
 type InvalidTypeError struct {
 	Type string
 }

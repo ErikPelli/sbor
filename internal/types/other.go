@@ -18,9 +18,9 @@ func (n Nil) WriteTo(w io.Writer) (int64, error) {
 	return int64(writtenBytes), err
 }
 
-func (n Nil) Write(p []byte) (int, error) {
-	// Do nothing, nil is identified in MessagePack type code
-	return 0, nil
+func (n Nil) ReadFrom(code byte, r io.Reader) (int64, error) {
+	// TODO
+	return 0, utils.InvalidArgumentError{}
 }
 
 // Len returns the length of the MessagePack encoded boolean.
@@ -44,15 +44,7 @@ func (b Boolean) WriteTo(w io.Writer) (int64, error) {
 	return int64(writtenBytes), err
 }
 
-func (b *Boolean) Write(p []byte) (int, error) {
-	var err error
-	length := len(p)
-
-	if length == 1 {
-		*b = p[0] == True
-	} else {
-		err = utils.InvalidArgumentError{Desc: "invalid boolean length"}
-	}
-
-	return length, err
+func (b *Boolean) ReadFrom(code byte, r io.Reader) (int64, error) {
+	// TODO
+	return 0, utils.InvalidArgumentError{}
 }
