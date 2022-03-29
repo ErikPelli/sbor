@@ -54,7 +54,7 @@ func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackType {
 	if value.IsValid() {
 		// Reserved external
 		if value.Type() == reflect.TypeOf(time.Time{}) {
-			return types.External{
+			return &types.External{
 				Type: byte(Timestamp),
 				Data: convertTimestampToBytes(value.Interface().(time.Time)),
 			}
@@ -68,7 +68,7 @@ func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackType {
 				if err != nil {
 					return utils.ErrorMessagePackType(err.Error())
 				} else {
-					return types.External{Type: handler.Type, Data: bytes}
+					return &types.External{Type: handler.Type, Data: bytes}
 				}
 			}
 		}
@@ -76,19 +76,24 @@ func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackType {
 
 	switch value.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return types.Uint(value.Uint())
+		u := types.Uint(value.Uint())
+		return &u
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return types.Int(value.Int())
+		i := types.Int(value.Int())
+		return &i
 
 	case reflect.Float32, reflect.Float64:
-		return types.Float(value.Float())
+		f := types.Float(value.Float())
+		return &f
 
 	case reflect.String:
-		return types.String(value.String())
+		s := types.String(value.String())
+		return &s
 
 	case reflect.Bool:
-		return types.Boolean(value.Bool())
+		b := types.Boolean(value.Bool())
+		return &b
 
 	case reflect.Interface:
 		return e.TypeWrapper(value.Elem())
@@ -107,12 +112,13 @@ func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackType {
 			mapR[i].Key = e.TypeWrapper(iter.Key())
 			mapR[i].Value = e.TypeWrapper(iter.Value())
 		}
-		return mapR
+		return &mapR
 
 	case reflect.Slice:
 		if value.Type() == reflect.TypeOf([]byte(nil)) {
 			// Binary
-			return types.Binary(value.Bytes())
+			b := types.Binary(value.Bytes())
+			return &b
 		}
 		fallthrough // Use reflect.Array code
 
@@ -122,10 +128,11 @@ func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackType {
 			v := value.Index(i)
 			arrayR[i] = e.TypeWrapper(v)
 		}
-		return arrayR
+		return &arrayR
 
 	case reflect.Struct:
-		return NewEncodingStruct(types.Struct(value), e)
+		s := NewEncodingStruct(types.Struct(value), e)
+		return &s
 
 	case reflect.Chan:
 		length := value.Len()
@@ -148,7 +155,7 @@ func (e *EncoderState) TypeWrapper(value reflect.Value) utils.MessagePackType {
 				}
 			}
 		}
-		return arrayR
+		return &arrayR
 
 	case reflect.Invalid:
 		return types.Nil{}
