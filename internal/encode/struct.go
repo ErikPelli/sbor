@@ -110,7 +110,9 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 		tagName, tagOptions := utils.ParseTag(tagValue)
 
 		var name utils.MessagePackType
-		name = types.String(field.Name)
+		n := new(types.String)
+		*n = types.String(field.Name)
+		name = n
 
 		if tagName == "-" && len(tagValue) == 1 {
 			// Skip "-"
@@ -119,7 +121,7 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 
 		if tagName != "" {
 			// Set name of field using specified name
-			name = types.String(tagName)
+			*n = types.String(tagName)
 		}
 
 		if tagOptions.Contains("omitempty") {
@@ -157,7 +159,7 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 
 		if tagOptions.Contains("customkey") {
 			// Change MessagePack field name using current name as map key
-			oldName := string(name.(types.String))
+			oldName := string(*n)
 			newName, ok := customKeysMap[oldName]
 			if ok {
 				name = e.state.TypeWrapper(reflect.ValueOf(newName))
@@ -168,7 +170,7 @@ func (e EncodingStruct) structParse(valueStruct reflect.Value) (result types.Map
 			}
 		} else {
 			// Check duplicated key in standard tag
-			checkName := string(name.(types.String))
+			checkName := string(*n)
 			_, already := usedKeysMap[checkName]
 			if already {
 				err = utils.DuplicatedKeyError{Key: name}
