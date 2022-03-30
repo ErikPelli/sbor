@@ -17,30 +17,54 @@ func TestMap_WriteTo_Simple(t *testing.T) {
 			Name:     "empty map",
 		},
 		{
-			Input: Map([]MessagePackMap{
-				{Key: String("int"), Value: Uint(1)},
-			}),
+			Input: func() Map {
+				s := String("int")
+				v := Uint(1)
+				return []MessagePackMap{
+					{Key: &s, Value: &v},
+				}
+			}(),
 			Expected: []byte{0x81, 0xA3, 0x69, 0x6E, 0x74, 0x01},
 			Name:     "one element",
 		},
 		{
-			Input: Map([]MessagePackMap{
-				{Key: String("boolean"), Value: Boolean(true)},
-				{Key: String("null"), Value: Nil{}},
-				{Key: String("string"), Value: String("foo bar")},
-				{Key: String("float"), Value: Float(0.5)},
-			}),
+			Input: func() Map {
+				_1 := String("boolean")
+				_2 := Boolean(true)
+				_3 := String("null")
+				_5 := String("string")
+				_6 := String("foo bar")
+				_7 := String("float")
+				_8 := Float(0.5)
+				return []MessagePackMap{
+					{Key: &_1, Value: &_2},
+					{Key: &_3, Value: Nil{}},
+					{Key: &_5, Value: &_6},
+					{Key: &_7, Value: &_8},
+				}
+			}(),
 			Expected: []byte{0x84, 0xA7, 0x62, 0x6F, 0x6F, 0x6C, 0x65, 0x61, 0x6E, 0xC3, 0xA4, 0x6E, 0x75, 0x6C, 0x6C, 0xC0, 0xA6, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0xA7, 0x66, 0x6F, 0x6F, 0x20, 0x62, 0x61, 0x72, 0xA5, 0x66, 0x6C, 0x6F, 0x61, 0x74, 0xCA, 0x3F, 0x00, 0x00, 0x00},
 			Name:     "multiple types 1",
 		},
 		{
-			Input: Map([]MessagePackMap{
-				{String("boolean"), Boolean(true)},
-				{String("null"), Nil{}},
-				{String("string"), String("foo bar")},
-				{String("int"), Int(-1)},
-				{String("float"), Float(0.5)},
-			}),
+			Input: func() Map {
+				_1 := String("boolean")
+				_2 := Boolean(true)
+				_3 := String("null")
+				_5 := String("string")
+				_6 := String("foo bar")
+				_7 := String("int")
+				_8 := Int(-1)
+				_9 := String("float")
+				_10 := Float(0.5)
+				return []MessagePackMap{
+					{Key: &_1, Value: &_2},
+					{Key: &_3, Value: Nil{}},
+					{Key: &_5, Value: &_6},
+					{Key: &_7, Value: &_8},
+					{Key: &_9, Value: &_10},
+				}
+			}(),
 			Expected: []byte{0x85, 0xA7, 0x62, 0x6F, 0x6F, 0x6C, 0x65, 0x61, 0x6E, 0xC3, 0xA4, 0x6E, 0x75, 0x6C, 0x6C, 0xC0, 0xA6, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0xA7, 0x66, 0x6F, 0x6F, 0x20, 0x62, 0x61, 0x72, 0xA3, 0x69, 0x6E, 0x74, 0xFF, 0xA5, 0x66, 0x6C, 0x6F, 0x61, 0x74, 0xCA, 0x3F, 0x00, 0x00, 0x00},
 			Name:     "multiple types 2",
 		},
@@ -51,36 +75,73 @@ func TestMap_WriteTo_Simple(t *testing.T) {
 func TestMap_WriteTo_Nested(t *testing.T) {
 	data := []utils.WriteTestData{
 		{
-			Input: Map([]MessagePackMap{
-				{Key: String("boolean"), Value: Boolean(true)},
-				{Key: String("null"), Value: Nil{}},
-				{Key: String("string"), Value: String("foo bar")},
-				{Key: String("array"), Value: Array([]utils.MessagePackType{
-					String("foo"),
-					String("bar"),
-				})},
-				{Key: String("int"), Value: Int(-2)},
-				{Key: String("float"), Value: Float(0.5)},
-			}),
+			Input: func() Map {
+				_1 := String("boolean")
+				_2 := Boolean(true)
+				_3 := String("null")
+				_5 := String("string")
+				_6 := String("foo bar")
+				_7 := String("int")
+				_8 := Int(-2)
+				_9 := String("float")
+				_10 := Float(0.5)
+
+				arr := String("array")
+				foo := String("foo")
+				bar := String("bar")
+
+				return []MessagePackMap{
+					{Key: &_1, Value: &_2},
+					{Key: &_3, Value: Nil{}},
+					{Key: &_5, Value: &_6},
+					{Key: &arr, Value: Array{
+						&foo,
+						&bar,
+					}},
+					{Key: &_7, Value: &_8},
+					{Key: &_9, Value: &_10},
+				}
+			}(),
 			Expected: []byte{0x86, 0xA7, 0x62, 0x6F, 0x6F, 0x6C, 0x65, 0x61, 0x6E, 0xC3, 0xA4, 0x6E, 0x75, 0x6C, 0x6C, 0xC0, 0xA6, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0xA7, 0x66, 0x6F, 0x6F, 0x20, 0x62, 0x61, 0x72, 0xA5, 0x61, 0x72, 0x72, 0x61, 0x79, 0x92, 0xA3, 0x66, 0x6F, 0x6F, 0xA3, 0x62, 0x61, 0x72, 0xA3, 0x69, 0x6E, 0x74, 0xFE, 0xA5, 0x66, 0x6C, 0x6F, 0x61, 0x74, 0xCA, 0x3F, 0x00, 0x00, 0x00},
 			Name:     "array inside",
 		},
 		{
-			Input: Map([]MessagePackMap{
-				{Key: String("int"), Value: Int(-2)},
-				{Key: String("float"), Value: Float(0.5)},
-				{Key: String("boolean"), Value: Boolean(true)},
-				{Key: String("null"), Value: Nil{}},
-				{Key: String("string"), Value: String("foo bar")},
-				{Key: String("array"), Value: Array([]utils.MessagePackType{
-					String("foo"),
-					String("bar"),
-				})},
-				{Key: String("object"), Value: Map([]MessagePackMap{
-					{Key: String("foo"), Value: Int(-1)},
-					{Key: String("bar"), Value: Float(0.5)},
-				})},
-			}),
+			Input: func() Map {
+				_1 := String("int")
+				_2 := Int(-2)
+				_3 := String("float")
+				_4 := Float(0.5)
+				_5 := String("boolean")
+				_6 := Boolean(true)
+				_7 := String("null")
+
+				_9 := String("string")
+				_10 := String("foo bar")
+
+				arr := String("array")
+				foo := String("foo")
+				bar := String("bar")
+
+				obj := String("object")
+				minusOne := Int(-1)
+				floatValue := Float(0.5)
+
+				return []MessagePackMap{
+					{Key: &_1, Value: &_2},
+					{Key: &_3, Value: &_4},
+					{Key: &_5, Value: &_6},
+					{Key: &_7, Value: Nil{}},
+					{Key: &_9, Value: &_10},
+					{Key: &arr, Value: Array{
+						&foo,
+						&bar,
+					}},
+					{Key: &obj, Value: Map{
+						{Key: &foo, Value: &minusOne},
+						{Key: &bar, Value: &floatValue},
+					}},
+				}
+			}(),
 			Expected: []byte{0x87, 0xA3, 0x69, 0x6E, 0x74, 0xFE, 0xA5, 0x66, 0x6C, 0x6F, 0x61, 0x74, 0xCA, 0x3F, 0x00, 0x00, 0x00, 0xA7, 0x62, 0x6F, 0x6F, 0x6C, 0x65, 0x61, 0x6E, 0xC3, 0xA4, 0x6E, 0x75, 0x6C, 0x6C, 0xC0, 0xA6, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0xA7, 0x66, 0x6F, 0x6F, 0x20, 0x62, 0x61, 0x72, 0xA5, 0x61, 0x72, 0x72, 0x61, 0x79, 0x92, 0xA3, 0x66, 0x6F, 0x6F, 0xA3, 0x62, 0x61, 0x72, 0xA6, 0x6F, 0x62, 0x6A, 0x65, 0x63, 0x74, 0x82, 0xA3, 0x66, 0x6F, 0x6F, 0xFF, 0xA3, 0x62, 0x61, 0x72, 0xCA, 0x3F, 0x00, 0x00, 0x00},
 			Name:     "nested map",
 		},
@@ -97,9 +158,11 @@ func TestMap_WriteTo_Map16(t *testing.T) {
 
 	input := make([]MessagePackMap, 1000)
 	for i := range input {
+		iv := Int(i)
+		bv := Boolean(rand.Uint32()%2 == 0)
 		elem := MessagePackMap{
-			Key:   Int(i),
-			Value: Boolean(rand.Uint32()%2 == 0),
+			Key:   &iv,
+			Value: &bv,
 		}
 		input[i] = elem
 		_, _ = elem.Key.WriteTo(e)
@@ -123,9 +186,11 @@ func TestMap_WriteTo_Map32(t *testing.T) {
 
 	input := make([]MessagePackMap, 80000)
 	for i := range input {
+		iv := Int(i)
+		bv := Boolean(rand.Uint32()%2 == 0)
 		elem := MessagePackMap{
-			Key:   Int(i),
-			Value: Boolean(rand.Uint32()%2 == 0),
+			Key:   &iv,
+			Value: &bv,
 		}
 		input[i] = elem
 		_, _ = elem.Key.WriteTo(e)
@@ -139,17 +204,19 @@ func TestMap_WriteTo_Map32(t *testing.T) {
 }
 
 func BenchmarkMap_Array_Duplication_Check_Small(b *testing.B) {
+	keys := [10]Int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	values := [10]Int{4, 3, 2, 1, 9, 8, 7, 6, 5, 4}
 	mapValues := []MessagePackMap{
-		{Key: Int(1), Value: Int(4)},
-		{Key: Int(2), Value: Int(3)},
-		{Key: Int(3), Value: Int(2)},
-		{Key: Int(4), Value: Int(1)},
-		{Key: Int(5), Value: Int(9)},
-		{Key: Int(6), Value: Int(8)},
-		{Key: Int(7), Value: Int(7)},
-		{Key: Int(8), Value: Int(6)},
-		{Key: Int(9), Value: Int(5)},
-		{Key: Int(10), Value: Int(4)},
+		{Key: &keys[0], Value: &values[0]},
+		{Key: &keys[1], Value: &values[1]},
+		{Key: &keys[2], Value: &values[2]},
+		{Key: &keys[3], Value: &values[3]},
+		{Key: &keys[4], Value: &values[4]},
+		{Key: &keys[5], Value: &values[5]},
+		{Key: &keys[6], Value: &values[6]},
+		{Key: &keys[7], Value: &values[7]},
+		{Key: &keys[8], Value: &values[8]},
+		{Key: &keys[9], Value: &values[9]},
 	}
 
 	length := len(mapValues)
@@ -169,17 +236,19 @@ func BenchmarkMap_Array_Duplication_Check_Small(b *testing.B) {
 }
 
 func BenchmarkMap_Map_Duplication_Check_Small(b *testing.B) {
+	keys := [10]Int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	values := [10]Int{4, 3, 2, 1, 9, 8, 7, 6, 5, 4}
 	mapValues := []MessagePackMap{
-		{Key: Int(1), Value: Int(4)},
-		{Key: Int(2), Value: Int(3)},
-		{Key: Int(3), Value: Int(2)},
-		{Key: Int(4), Value: Int(1)},
-		{Key: Int(5), Value: Int(9)},
-		{Key: Int(6), Value: Int(8)},
-		{Key: Int(7), Value: Int(7)},
-		{Key: Int(8), Value: Int(6)},
-		{Key: Int(9), Value: Int(5)},
-		{Key: Int(10), Value: Int(4)},
+		{Key: &keys[0], Value: &values[0]},
+		{Key: &keys[1], Value: &values[1]},
+		{Key: &keys[2], Value: &values[2]},
+		{Key: &keys[3], Value: &values[3]},
+		{Key: &keys[4], Value: &values[4]},
+		{Key: &keys[5], Value: &values[5]},
+		{Key: &keys[6], Value: &values[6]},
+		{Key: &keys[7], Value: &values[7]},
+		{Key: &keys[8], Value: &values[8]},
+		{Key: &keys[9], Value: &values[9]},
 	}
 
 	length := len(mapValues)
@@ -201,9 +270,11 @@ func BenchmarkMap_Map_Duplication_Check_Small(b *testing.B) {
 func BenchmarkMap_Map_Duplication_Check_Large(b *testing.B) {
 	mapValues := make([]MessagePackMap, 80000)
 	for i := range mapValues {
+		iv := Int(i)
+		bv := Boolean(rand.Uint32()%2 == 0)
 		elem := MessagePackMap{
-			Key:   Array{Int(i)},
-			Value: Boolean(rand.Uint32()%2 == 0),
+			Key:   Array{&iv},
+			Value: &bv,
 		}
 		mapValues[i] = elem
 	}
@@ -226,8 +297,9 @@ func BenchmarkMap_Map_Duplication_Check_Large(b *testing.B) {
 
 func TestArray_Len_MapError1(t *testing.T) {
 	input := Map(make([]MessagePackMap, 1))
+	b := Boolean(false)
 	input[0] = MessagePackMap{
-		Key:   Boolean(false),
+		Key:   &b,
 		Value: utils.ErrorMessagePackType("test"),
 	}
 
