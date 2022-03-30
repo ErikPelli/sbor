@@ -6,7 +6,7 @@ import (
 )
 
 type WriteTestData struct {
-	Input    MessagePackType
+	Input    MessagePackTypeEncoder
 	Expected []byte
 	Name     string
 }

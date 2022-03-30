@@ -10,25 +10,40 @@ import (
 func TestArray_WriteTo(t *testing.T) {
 	data := []utils.WriteTestData{
 		{
-			Input: Array([]utils.MessagePackType{
-				String("foo"),
-				String("bar")}),
+			Input: Array(func() []utils.MessagePackType {
+				foo := String("foo")
+				bar := String("bar")
+				return []utils.MessagePackType{
+					&foo,
+					&bar,
+				}
+			}()),
 			Expected: []byte{0x92, 0xA3, 0x66, 0x6F, 0x6F, 0xA3, 0x62, 0x61, 0x72},
 			Name:     "only strings",
 		},
 		{
-			Input: Array([]utils.MessagePackType{
-				Uint(123),
-				Nil{},
-				Float(5.5)}),
+			Input: Array(func() []utils.MessagePackType {
+				_123 := Uint(123)
+				float55 := Float(5.5)
+				return []utils.MessagePackType{
+					&_123,
+					Nil{},
+					&float55,
+				}
+			}()),
 			Expected: []byte{0x93, 0x7B, 0xC0, 0xCA, 0x40, 0xB0, 0x00, 0x00},
 			Name:     "mixed types",
 		},
 		{
-			Input: Array([]utils.MessagePackType{
-				Array([]utils.MessagePackType{Nil{}}),
-				Array([]utils.MessagePackType{Uint(1), Uint(2), Uint(3), Uint(4), Uint(5)}),
-				Boolean(false)}),
+			Input: Array(func() []utils.MessagePackType {
+				boolFalse := Boolean(false)
+				uints := [5]Uint{1, 2, 3, 4, 5}
+				return []utils.MessagePackType{
+					Array([]utils.MessagePackType{Nil{}}),
+					Array([]utils.MessagePackType{&uints[0], &uints[1], &uints[2], &uints[3], &uints[4]}),
+					&boolFalse,
+				}
+			}()),
 			Expected: []byte{0x93, 0x91, 0xC0, 0x95, 0x01, 0x02, 0x03, 0x04, 0x05, 0xC2},
 			Name:     "nested arrays",
 		},
@@ -45,7 +60,8 @@ func TestArray_WriteTo_Arr16(t *testing.T) {
 
 	input := make([]utils.MessagePackType, 1000)
 	for i := range input {
-		input[i] = Boolean(rand.Uint32()%2 == 0)
+		b := Boolean(rand.Uint32()%2 == 0)
+		input[i] = &b
 		_, _ = input[i].WriteTo(e)
 	}
 
@@ -66,7 +82,8 @@ func TestArray_Len_WriteTo_Arr32(t *testing.T) {
 
 	input := make([]utils.MessagePackType, 80000)
 	for i := range input {
-		input[i] = Boolean(rand.Uint32()%2 == 0)
+		b := Boolean(rand.Uint32()%2 == 0)
+		input[i] = &b
 		_, _ = input[i].WriteTo(e)
 	}
 
