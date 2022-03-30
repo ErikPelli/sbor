@@ -79,7 +79,7 @@ func (m Map) WriteTo(w io.Writer) (int64, error) {
 	return nTotal, err
 }
 
-func (m *Map) ReadFrom(code byte, r io.Reader) (int64, error) {
+func (m Map) ReadFrom(code byte, r io.Reader) (int64, error) {
 	// TODO
 	return 0, utils.InvalidArgumentError{}
 }

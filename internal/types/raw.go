@@ -121,7 +121,7 @@ func (b Binary) WriteTo(w io.Writer) (int64, error) {
 	return int64(headerBytes + dataBytes), err
 }
 
-func (b *Binary) ReadFrom(code byte, r io.Reader) (int64, error) {
+func (b Binary) ReadFrom(code byte, r io.Reader) (int64, error) {
 	// TODO
 	return 0, utils.InvalidArgumentError{}
 }
