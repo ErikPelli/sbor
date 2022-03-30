@@ -10,19 +10,19 @@ import (
 func TestArray_WriteTo(t *testing.T) {
 	data := []utils.WriteTestData{
 		{
-			Input: Array(func() []utils.MessagePackType {
+			Input: func() Array {
 				foo := String("foo")
 				bar := String("bar")
 				return []utils.MessagePackType{
 					&foo,
 					&bar,
 				}
-			}()),
+			}(),
 			Expected: []byte{0x92, 0xA3, 0x66, 0x6F, 0x6F, 0xA3, 0x62, 0x61, 0x72},
 			Name:     "only strings",
 		},
 		{
-			Input: Array(func() []utils.MessagePackType {
+			Input: func() Array {
 				_123 := Uint(123)
 				float55 := Float(5.5)
 				return []utils.MessagePackType{
@@ -30,12 +30,12 @@ func TestArray_WriteTo(t *testing.T) {
 					Nil{},
 					&float55,
 				}
-			}()),
+			}(),
 			Expected: []byte{0x93, 0x7B, 0xC0, 0xCA, 0x40, 0xB0, 0x00, 0x00},
 			Name:     "mixed types",
 		},
 		{
-			Input: Array(func() []utils.MessagePackType {
+			Input: func() Array {
 				boolFalse := Boolean(false)
 				uints := [5]Uint{1, 2, 3, 4, 5}
 				return []utils.MessagePackType{
@@ -43,7 +43,7 @@ func TestArray_WriteTo(t *testing.T) {
 					Array([]utils.MessagePackType{&uints[0], &uints[1], &uints[2], &uints[3], &uints[4]}),
 					&boolFalse,
 				}
-			}()),
+			}(),
 			Expected: []byte{0x93, 0x91, 0xC0, 0x95, 0x01, 0x02, 0x03, 0x04, 0x05, 0xC2},
 			Name:     "nested arrays",
 		},
